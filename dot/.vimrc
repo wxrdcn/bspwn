@@ -1,0 +1,36 @@
+set nocompatible
+syntax on
+set modelines=0
+set number
+set encoding=utf-8
+set wrap
+
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set autoindent
+set copyindent
+set expandtab
+set noshiftround
+
+set hlsearch
+set incsearch
+set showmatch
+set smartcase
+
+set hidden
+set ttyfast
+set laststatus=2
+
+set showcmd
+set background=dark
+
+" Copy to system clipboard
+vnoremap <leader>y "+y
+nnoremap <leader>Y "+yg_
+
+" Paste from system clipboard
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+
+set clipboard=unnamedplus

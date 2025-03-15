@@ -1,0 +1,90 @@
+#!/bin/bash
+
+##################### AUTOSTART ###############################
+
+# Set screen resolution
+# xrandr -s 1600x900
+
+
+### Wallpaper
+# Use feh to set wallpaper
+feh --bg-fill "$HOME/.config/bspwm/redcorekali.png" 2> /dev/null &
+#hsetroot -add "#760000" -add "#000000" -gradient 0
+#hsetroot -root -solid "#111111"
+
+
+### Mouse and Touchpad Settings
+# TrackPoint settings
+xinput set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 0.1 &
+
+# Touchpad settings for T470
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Accel Speed' -0.1 &
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Scroll Method Enabled' 0 1 0 &
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Horizontal Scroll Enabled' 1 &
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Natural Scrolling Enabled' 0 &
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Tapping Enabled' 1 &
+
+# Disable touchpad while typing
+xinput set-prop 'SynPS/2 Synaptics TouchPad' "libinput Disable While Typing Enabled" 1 &
+
+### System Settings
+# Disable beep sound
+xset -b
+
+# Keyboard repeat rate
+xset r rate 150 25
+
+# redshift -O 4500
+
+
+
+### Process Management
+# Function to restart a process if it's already running
+restart_process() {
+  local process_name="$1"
+  shift
+  if pgrep -x "$process_name" > /dev/null; then
+    echo "Restarting $process_name..."
+    killall "$process_name" 2> /dev/null
+    pkill -9 "$process_name" 2> /dev/null
+    sleep 0.5 # Wait for the process to terminate
+  fi
+  # Start the process
+  "$@" &
+}
+
+# Restart lxpolkit
+restart_process lxpolkit lxpolkit
+
+# Restart xfce4-clipman
+restart_process xfce4-clipman xfce4-clipman
+
+# Restart nm-applet
+restart_process nm-applet nm-applet
+
+# Restart xfce4-screensaver
+restart_process xfce4-screensaver xfce4-screensaver
+
+# Restart xfce4-power-manager
+restart_process xfce4-power-manager xfce4-power-manager
+
+# Restart dunst
+restart_process dunst dunst -c "$HOME/.config/dunst/dunstrc"
+
+# Restart picom
+#restart_process picom picom
+
+# Restart sxhkd
+restart_process sxhkd sxhkd
+
+# Restart polybar
+if pgrep -x polybar > /dev/null; then
+  echo "Restarting polybar..."
+  killall polybar 2> /dev/null
+  pkill -9 polybar 2> /dev/null
+  sleep 0.5
+fi
+"$HOME/.config/polybar/launch.sh" &
+
+
+############################################################

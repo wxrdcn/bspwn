@@ -1,0 +1,109 @@
+/*
+ * ROFI color theme
+ *
+ * Based on Something Found in the Internet
+ *
+ * User: Contributors
+ * Copyright: *!
+ */
+
+configuration {
+  font: "Hack Nerd Font Mono 13";
+  terminal: "kitty";
+  drun {
+    display-name: "";
+  }
+
+  run {
+    display-name: "";
+  }
+
+  window {
+    display-name: "⧉";
+  }
+
+  timeout {
+    delay: 60;
+    action: "kb-cancel";
+
+  }
+}
+
+* {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  spacing: 0;
+ 
+  show-icons:true;
+ 
+  width: 1024;
+  height: 512;
+
+  y-offset: 100;
+
+  bg: #0a0a0a;
+  bg-alt: #1f1f1f;
+  fg: #ffffff;
+  fg-alt: #d8dee9;
+  fga: #1f1f1f;
+
+  background-color: @bg;
+  text-color: @fg-alt;
+}
+
+window {
+  border: 2px;
+  border-color: @fga;
+  padding: 6px;
+  transparency: "real";
+}
+
+mainbox {
+  children: [inputbar, listview];
+}
+
+inputbar {
+  children: [prompt, entry];
+}
+
+entry {
+  padding: 10px;
+  text-color: @fg;
+}
+
+prompt {
+  padding: 12px;
+  text-color: @fg;
+}
+
+listview {
+  lines: 10;
+  scrollbar: true;
+}
+
+scrollbar {
+  background-color: @bg-alt;
+  handle-color: @fg;
+  margin: 0 0 0 6px;
+}
+
+element {
+  children: [element-icon, element-text];
+}
+
+element-text {
+  padding: 10px;
+}
+
+element-icon {
+  padding: 10px 10px;
+  size: 2ch;
+
+}
+
+element-text selected {
+  background-color: @bg-alt;
+  text-color: @fg;
+}
+
