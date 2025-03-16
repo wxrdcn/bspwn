@@ -83,6 +83,12 @@ if [ "$color_prompt" = yes ]; then
   # Define ANSI color codes using tput
   reset_color="$(tput sgr0)"
   red="$(tput setaf 160)"
+  
+  bg_color='%{%K{#C60505}%}'
+  fg_color='%{%F{#FFFFFF}%}'
+  ext_color='%{%K{#2d2d2d}%}'
+  end_color='%{%f%}%{%k%}'
+
 
   # Initialize prompt style
   PROMPT_STYLE=detailed
@@ -103,17 +109,17 @@ if [ "$color_prompt" = yes ]; then
       case $PROMPT_STYLE in
           detailed)
               local ipaddr=$(get_ipaddr)
-              PROMPT="%B%{$red%}[ %nX$ipaddr %~ ]$%b "
+              PROMPT="${bg_color}${fg_color}%B[ %nX$ipaddr %~ ]$%b${end_color}${ext_color} "
               ;;
           ipdir)
               local ipaddr=$(get_ipaddr)
-              PROMPT="%B%{$red%}[ $ipaddr %~ ]$%b "
+              PROMPT="${bg_color}${fg_color}%B[ $ipaddr %~ ]$%b${end_color}${ext_color}  "
               ;;
           dir)
-              PROMPT="%B%{$red%}[ %~ ]$%b "
+              PROMPT="${bg_color}${fg_color}%B[ %~ ]$%b${end_color}${ext_color}  "
               ;;
           minimal)
-              PROMPT="%B%{$red%}$%b "
+              PROMPT="${bg_color}${fg_color}%B$%b${end_color}${ext_color}  "
               ;;
       esac
   }
