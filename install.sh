@@ -53,6 +53,7 @@ install_config(){
         moreutils \
         iftop \
         translate-shell \
+        redshift \
         btm
 
     # global install of neovim
