@@ -185,7 +185,7 @@ if [ "$color_prompt" = yes ]; then
     # see more at https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html#Character-Highlighting
     if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
         . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-        ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern line)
+        ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern line regexp)
         ZSH_HIGHLIGHT_STYLES[default]=none
         ZSH_HIGHLIGHT_STYLES[line]=bold,standout
         ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red,underline
@@ -229,8 +229,9 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[bracket-level-5]=fg=cyan
         ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
         ZSH_HIGHLIGHT_STYLES[alias]=fg=magenta
-        ZSH_HIGHLIGHT_PATTERNS+=('rm*' 'fg=#c60505,bold,bg=yellow')
-        ZSH_HIGHLIGHT_PATTERNS+=('sudo' 'fg=yellow,bold,bg=#c60505')
+        ZSH_HIGHLIGHT_REGEXP+=('rm' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('sudo' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('sudo\s+rm\s+(-[rf]+)?|rm\s+-[rf]+' bg=#c60505,fg=yellow,bold)
   fi
 
 # ---
@@ -346,7 +347,7 @@ function mkt(){
         echo "Provide a Folder name\nusage: mkt <foldername>"
     else
         echo "\n[ Creating folder $1 @ $PWD ]\n"
-        mkdir -p $1/{content,exploits,nmap}
+        mkdir -p $1/{content,enum,exploits}
         cd $1
         ls -lha
     fi
