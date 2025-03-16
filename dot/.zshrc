@@ -83,11 +83,11 @@ if [ "$color_prompt" = yes ]; then
   # Define ANSI color codes using tput
   reset_color="$(tput sgr0)"
   red="$(tput setaf 160)"
-  
+ 
   bg_color='%{%K{#C60505}%}'
-  fg_color='%{%F{#FFFFFF}%}'
-  ext_color='%{%K{#2d2d2d}%}'
-  end_color='%{%f%}%{%k%}'
+  fg_color='%{%F{#000000}%}'
+  #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
+  end_color='%{%f%k%}'
 
 
   # Initialize prompt style
@@ -109,17 +109,17 @@ if [ "$color_prompt" = yes ]; then
       case $PROMPT_STYLE in
           detailed)
               local ipaddr=$(get_ipaddr)
-              PROMPT="${bg_color}${fg_color}%B[ %nX$ipaddr %~ ]$%b${end_color}${ext_color} "
+              PROMPT="${bg_color}${fg_color}%B[ %nX$ipaddr %~ ]$%b${end_color} "
               ;;
           ipdir)
               local ipaddr=$(get_ipaddr)
-              PROMPT="${bg_color}${fg_color}%B[ $ipaddr %~ ]$%b${end_color}${ext_color}  "
+              PROMPT="${bg_color}${fg_color}%B[ $ipaddr %~ ]$%b${end_color} "
               ;;
           dir)
-              PROMPT="${bg_color}${fg_color}%B[ %~ ]$%b${end_color}${ext_color}  "
+              PROMPT="${bg_color}${fg_color}%B[ %~ ]$%b${end_color} "
               ;;
           minimal)
-              PROMPT="${bg_color}${fg_color}%B$%b${end_color}${ext_color}  "
+              PROMPT="${bg_color}${fg_color}%B$%b${end_color} "
               ;;
       esac
   }
@@ -167,7 +167,7 @@ if [ "$color_prompt" = yes ]; then
       done
 
       local saved_prompt=$PROMPT
-      PROMPT='%B%F{160}$%f%b '
+      PROMPT='%B%K{160}%F{#fff}$%f%b%k '
       zle .reset-prompt
       PROMPT=$saved_prompt
 
@@ -184,16 +184,17 @@ if [ "$color_prompt" = yes ]; then
     # options fg,bg,underline,bold
     if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
         . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-        ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern)
+        ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern line)
         ZSH_HIGHLIGHT_STYLES[default]=none
-        ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red
+        ZSH_HIGHLIGHT_STYLES[line]=bold,standout
+        ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red,underline
         ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=cyan
-        ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=green
+        ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=green,underline
         ZSH_HIGHLIGHT_STYLES[global-alias]=fg=green
-        ZSH_HIGHLIGHT_STYLES[precommand]=fg=green
+        ZSH_HIGHLIGHT_STYLES[precommand]=fg=green,underline
         ZSH_HIGHLIGHT_STYLES[commandseparator]=fg=blue
-        ZSH_HIGHLIGHT_STYLES[autodirectory]=fg=green
-        ZSH_HIGHLIGHT_STYLES[path]=
+        ZSH_HIGHLIGHT_STYLES[autodirectory]=fg=green,underline
+        ZSH_HIGHLIGHT_STYLES[path]=bold,underline,fg=yellow
         ZSH_HIGHLIGHT_STYLES[path_pathseparator]=
         ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]=
         ZSH_HIGHLIGHT_STYLES[globbing]=fg=blue
@@ -227,7 +228,6 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[bracket-level-5]=fg=cyan
         ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
         ZSH_HIGHLIGHT_STYLES[alias]=fg=magenta
-        ZSH_HIGHLIGHT_STYLES[line]=
         ZSH_HIGHLIGHT_PATTERNS+=('rm*' 'fg=yellow,bold,bg=#c60505')
         ZSH_HIGHLIGHT_PATTERNS+=('sudo' 'fg=yellow,bold,bg=#c60505')
   fi
