@@ -49,7 +49,8 @@ install_config(){
         htop \
         gping \
         apg \
-        pwgen
+        pwgen \
+        btm
 
     # global install of neovim
     sudo wget -q "https://github.com/neovim/neovim/releases/download/v0.10.4/nvim-linux-x86_64.tar.gz" -O "/dev/shm/nvim-linux-x86_64.tar.gz"
