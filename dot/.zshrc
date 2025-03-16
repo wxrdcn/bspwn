@@ -129,8 +129,23 @@ if [ "$color_prompt" = yes ]; then
       update_prompt
       zle reset-prompt
   }
+  
   zle -N toggle_prompt
   bindkey '^P' toggle_prompt
+
+  # Toggle prompt styles in reverse order
+  toggle_prompt_reverse() {
+      case $PROMPT_STYLE in
+          dir) PROMPT_STYLE=ipdir ;;
+          ipdir) PROMPT_STYLE=detailed ;;
+          detailed) PROMPT_STYLE=minimal ;;
+          *) PROMPT_STYLE=dir ;; # Fallback to `dir` if PROMPT_STYLE is not set
+      esac
+      update_prompt
+      zle reset-prompt
+  }
+  zle -N toggle_prompt_reverse
+  bindkey '^[^P' toggle_prompt_reverse
 
   # --- Transient Prompt ---
   zle-line-init() {
