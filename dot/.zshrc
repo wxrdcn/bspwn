@@ -84,8 +84,8 @@ if [ "$color_prompt" = yes ]; then
   reset_color="$(tput sgr0)"
   red="$(tput setaf 160)"
  
-  bg_color='%{%K{#C60505}%}'
-  fg_color='%{%F{#000000}%}'
+  bg_color='%{%K{#740000}%}'
+  fg_color='%{%F{#ced4da}%}'
   #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
   end_color='%{%f%k%}'
 
@@ -109,17 +109,17 @@ if [ "$color_prompt" = yes ]; then
       case $PROMPT_STYLE in
           detailed)
               local ipaddr=$(get_ipaddr)
-              PROMPT="${bg_color}${fg_color}%B[ %nX$ipaddr %~ ]$%b${end_color} "
+              PROMPT="${bg_color}${fg_color}[ %nX$ipaddr %~ ]\$${end_color} "
               ;;
           ipdir)
               local ipaddr=$(get_ipaddr)
-              PROMPT="${bg_color}${fg_color}%B[ $ipaddr %~ ]$%b${end_color} "
+              PROMPT="${bg_color}${fg_color}[ $ipaddr %~ ]\$${end_color} "
               ;;
           dir)
-              PROMPT="${bg_color}${fg_color}%B[ %~ ]$%b${end_color} "
+              PROMPT="${bg_color}${fg_color}[ %~ ]\$${end_color} "
               ;;
           minimal)
-              PROMPT="${bg_color}${fg_color}%B$%b${end_color} "
+              PROMPT="${bg_color}${fg_color}\$${end_color} "
               ;;
       esac
   }
@@ -167,7 +167,7 @@ if [ "$color_prompt" = yes ]; then
       done
 
       local saved_prompt=$PROMPT
-      PROMPT='%B%K{160}%F{#fff}$%f%b%k '
+      PROMPT='${bg_color}${fg_color}\$${end_color} '
       zle .reset-prompt
       PROMPT=$saved_prompt
 
@@ -182,6 +182,7 @@ if [ "$color_prompt" = yes ]; then
 
     # --- Syntax-highlighting ---
     # options fg,bg,underline,bold
+    # see more at https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html#Character-Highlighting
     if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
         . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
         ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern line)
@@ -228,7 +229,7 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[bracket-level-5]=fg=cyan
         ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
         ZSH_HIGHLIGHT_STYLES[alias]=fg=magenta
-        ZSH_HIGHLIGHT_PATTERNS+=('rm*' 'fg=yellow,bold,bg=#c60505')
+        ZSH_HIGHLIGHT_PATTERNS+=('rm*' 'fg=#c60505,bold,bg=yellow')
         ZSH_HIGHLIGHT_PATTERNS+=('sudo' 'fg=yellow,bold,bg=#c60505')
   fi
 
