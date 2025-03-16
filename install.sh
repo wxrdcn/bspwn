@@ -52,6 +52,7 @@ install_config(){
         pwgen \
         moreutils \
         iftop \
+        translate-shell \
         btm
 
     # global install of neovim

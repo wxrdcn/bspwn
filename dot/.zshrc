@@ -229,7 +229,7 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[alias]=fg=magenta
         ZSH_HIGHLIGHT_STYLES[line]=
         ZSH_HIGHLIGHT_PATTERNS+=('rm*' 'fg=yellow,bold,bg=#c60505')
-        ZSH_HIGHLIGHT_PATTERNS+=('sudo*' 'fg=yellow,bold,bg=#c60505')
+        ZSH_HIGHLIGHT_PATTERNS+=('sudo' 'fg=yellow,bold,bg=#c60505')
   fi
 
 # ---
