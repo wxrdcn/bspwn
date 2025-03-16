@@ -51,6 +51,7 @@ install_config(){
         apg \
         pwgen \
         moreutils \
+        iftop \
         btm
 
     # global install of neovim
