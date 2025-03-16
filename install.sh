@@ -50,6 +50,7 @@ install_config(){
         gping \
         apg \
         pwgen \
+        moreutils \
         btm
 
     # global install of neovim
