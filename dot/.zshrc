@@ -347,7 +347,7 @@ function mkt(){
         echo "Provide a Folder name\nusage: mkt <foldername>"
     else
         echo "\n[ Creating folder $1 @ $PWD ]\n"
-        mkdir -p $1/{content,enum,exploits}
+        mkdir -p $1/{content,enum,xploit}
         cd $1
         ls -lha
     fi
