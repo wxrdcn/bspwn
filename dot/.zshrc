@@ -229,9 +229,11 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[bracket-level-5]=fg=cyan
         ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
         ZSH_HIGHLIGHT_STYLES[alias]=fg=magenta
-        ZSH_HIGHLIGHT_REGEXP+=('rm' bg=#c60505,fg=yellow,bold)
         ZSH_HIGHLIGHT_REGEXP+=('sudo' bg=#c60505,fg=yellow,bold)
-        ZSH_HIGHLIGHT_REGEXP+=('sudo\s+rm\s+(-[rf]+)?|rm\s+-[rf]+' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('\bsudo\b' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('\brm\b(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('\bsudo\b\s+\brm\b(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('\$\([^\)]*\brm\b[^\)]*\)|`[^`]*\brm\b[^`]*`' bg=#c60505,fg=yellow,bold)
   fi
 
 # ---
