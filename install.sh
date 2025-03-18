@@ -55,6 +55,9 @@ install_config(){
         translate-shell \
         redshift \
         chrony \
+        ncal \
+        calc \
+        moreutils \
         btm
 
     # global install of neovim
