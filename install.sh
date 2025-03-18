@@ -58,6 +58,9 @@ install_config(){
         ncal \
         calc \
         moreutils \
+        mpv \
+        vlc \
+        timg \
         btm
 
     # global install of neovim
