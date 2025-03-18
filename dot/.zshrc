@@ -195,7 +195,7 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[precommand]=fg=green,underline
         ZSH_HIGHLIGHT_STYLES[commandseparator]=fg=blue
         ZSH_HIGHLIGHT_STYLES[autodirectory]=fg=green,underline
-        ZSH_HIGHLIGHT_STYLES[path]=bold,underline,fg=yellow
+        ZSH_HIGHLIGHT_STYLES[path]=bold,underline,fg=blue
         ZSH_HIGHLIGHT_STYLES[path_pathseparator]=
         ZSH_HIGHLIGHT_STYLES[path_prefix_pathseparator]=
         ZSH_HIGHLIGHT_STYLES[globbing]=fg=blue
@@ -284,6 +284,7 @@ alias lla='ls -lha'
 alias lra='ls -lRa'
 
 alias igrep='grep -i'
+alias grepi='grep -i'
 alias rm='rm -Iv'
 alias ffetch='fastfetch --logo none --color red'
 alias cat='batcat --paging=never --style=plain'
