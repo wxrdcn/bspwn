@@ -8,7 +8,7 @@
 
 ### Wallpaper
 # Use feh to set wallpaper
-feh --bg-fill "$HOME/.config/bspwm/redcorekali.png" 2> /dev/null &
+feh --bg-fill "$HOME/.config/bspwm/wallpapes/background.png" 2> /dev/null &
 #hsetroot -add "#760000" -add "#000000" -gradient 0
 #hsetroot -root -solid "#111111"
 
