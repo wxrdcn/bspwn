@@ -61,6 +61,7 @@ install_config(){
         mpv \
         vlc \
         timg \
+        gimp \
         btm
 
     # global install of neovim
