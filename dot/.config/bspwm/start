@@ -8,7 +8,9 @@
 
 ### Wallpaper
 # Use feh to set wallpaper
-feh --bg-fill "$HOME/.config/bspwm/wallpapes/background.png" 2> /dev/null &
+
+BG_DIR=$HOME/.config/bspwm/wallpapers/
+feh --bg-fill "$BG_DIR/background.png" 2> /dev/null &
 #hsetroot -add "#760000" -add "#000000" -gradient 0
 #hsetroot -root -solid "#111111"
 
@@ -42,7 +44,6 @@ xset r rate 150 25
 # Function to restart a process if it's already running
 restart_process() {
   local process_name="$1"
-  shift
   if pgrep -x "$process_name" > /dev/null; then
     echo "Restarting $process_name..."
     killall "$process_name" 2> /dev/null
@@ -50,41 +51,13 @@ restart_process() {
     sleep 0.5 # Wait for the process to terminate
   fi
   # Start the process
-  "$@" &
+  "$1" &
 }
 
-# Restart lxpolkit
-restart_process lxpolkit lxpolkit
-
-# Restart xfce4-clipman
-restart_process xfce4-clipman xfce4-clipman
-
-# Restart nm-applet
-restart_process nm-applet nm-applet
-
-# Restart xfce4-screensaver
-restart_process xfce4-screensaver xfce4-screensaver
-
-# Restart xfce4-power-manager
-restart_process xfce4-power-manager xfce4-power-manager
-
-# Restart dunst
-restart_process dunst dunst -c "$HOME/.config/dunst/dunstrc"
-
-# Restart picom
-#restart_process picom picom
-
-# Restart sxhkd
-restart_process sxhkd sxhkd
-
-# Restart polybar
-if pgrep -x polybar > /dev/null; then
-  echo "Restarting polybar..."
-  killall polybar 2> /dev/null
-  pkill -9 polybar 2> /dev/null
-  sleep 0.5
-fi
-"$HOME/.config/polybar/launch.sh" &
-
+# define list of processes
+process_list=( "kdeconnectd" "lxpolkit" "xfce4-clipman" "nm-applet" "xfce4-screensaver" "xfce4-power-manager" "dunst" "sxhkd" "polybar")
+for process in "${process_list[@]}"; do
+  restart_process $process 
+done
 
 ############################################################
