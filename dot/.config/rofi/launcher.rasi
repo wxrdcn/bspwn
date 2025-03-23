@@ -8,18 +8,18 @@
  */
 
 configuration {
-  font: "Hack Nerd Font Mono 13";
+  font: "Fira Code Nerd Font Mono Bold 16";
   terminal: "kitty";
   drun {
-    display-name: "";
+    display-name: "🔎";
   }
 
   run {
-    display-name: "";
+    display-name: ">_";
   }
 
   window {
-    display-name: "⧉";
+    display-name: "🪟";
   }
 
   timeout {
@@ -30,10 +30,10 @@ configuration {
 }
 
 * {
-  border: 0;
+  border: 3;
   margin: 0;
   padding: 0;
-  spacing: 0;
+  spacing: 3;
  
   show-icons:true;
  
@@ -53,9 +53,9 @@ configuration {
 }
 
 window {
-  border: 2px;
+  border: 10px;
   border-color: @fga;
-  padding: 6px;
+  padding: 2px;
   transparency: "real";
 }
 
@@ -98,7 +98,7 @@ element-text {
 
 element-icon {
   padding: 10px 10px;
-  size: 2ch;
+  size: 35px;
 
 }
 

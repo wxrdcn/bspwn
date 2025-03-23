@@ -309,48 +309,60 @@ alias smbmap='smbmap --no-banner'
 alias verse="verse | tr -s ' '| tr -d '\n' | sed 's/^ //'"
 
 # --- functions ---
+
+
 function ww() {
-    # Check if an argument was provided
-    if [ -z "$1" ]; then
-        echo "Usage: ww <target>"
+    # Declare options as a local array to avoid conflicts with outer scope
+    local -a options
+
+    # Check if any arguments were provided
+    if [ $# -eq 0 ]; then
+        echo "Usage: ww [whatweb options] <URLs>"
         return 1
     fi
 
-    # Extract a clean filename from the URL/target
-    clean_name=$(echo "$1" | sed -E 's/https?:\/\///g' | sed -E 's/[:\/]/_/g' | sed -E 's/\./_/g')
-    #timestamp=$(date +"%Y%m%d_%H%M%S")
-    #base_filename="${clean_name}_${timestamp}"
+    # Get the last argument (the target URL or IP)
+    target="${@: -1}"
+
+    # Validate that the target looks like a URL or IP
+    if [[ ! "$target" =~ ^(https?://|[a-zA-Z0-9.-]+\.[a-zA-Z]+|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+) ]]; then
+        echo "Error: Last argument doesn't appear to be a valid target"
+        echo "Usage: ww [whatweb options] <URLs>"
+        return 1
+    fi
+
+    # Generate a clean filename from the target
+    clean_name=$(echo "$target" | sed -E 's/https?:\/\///g' | sed -E 's/[:\/]/_/g' | sed -E 's/\./_/g')
     base_filename="${clean_name}"
-    
-    # Create output directory if it doesn't exist
-    output_dir="."
-    mkdir -p "$output_dir"
-    
-    # Define filenames for different output formats
-    txt_file="$output_dir/${base_filename}.txt"
-    xml_file="$output_dir/${base_filename}.xml"
-    json_file="$output_dir/${base_filename}.json"
-    
-    echo "[+] Scanning $1..."
-    echo "[+] Results will be saved to:"
+
+    # Define output filenames for text, XML, and JSON
+    txt_file="./${base_filename}.txt"
+    xml_file="./${base_filename}.xml"
+    json_file="./${base_filename}.json"
+
+    # Gather all arguments except the last one (the target)
+    if [ $# -gt 1 ]; then
+        options=("${@:1:$#-1}")
+    else
+        options=()
+    fi
+
+    # Display scan details
+    echo -e "Scanning $target..."
+    echo -e "Options: ${options[*]}"
+    echo -e "Results will be saved to:"
+    echo -e "\n----------------------\n"
     echo -e "\tText: $txt_file"
     echo -e "\tXML: $xml_file"
     echo -e "\tJSON: $json_file"
-    echo "\n---------------------\n\n" 
-    # Run whatweb with all output formats
-    whatweb -v "$1" --log-xml="$xml_file" --log-json="$json_file" | tee "$txt_file"
-    echo "\n---------------------\n\n" 
+    echo -e "\n----------------------\n\n"
+
+    # Run whatweb with the specified options and output formats
+    whatweb -v "${options[@]}" --log-xml="$xml_file" --log-json="$json_file" "$target" | tee "$txt_file"
+
     echo "Scan complete!"
 }
 
-whatweb_clean() {
-  if [ -z "$1" ]; then
-    echo "Usage: whatweb_clean <url_or_ip>"
-    return 1
-  fi
-
-  whatweb "$1" | tr -d "," | sed -r 's/\]\ /\]\n\t/g'
-}
 
 
 function zat(){
