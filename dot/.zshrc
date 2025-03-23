@@ -309,6 +309,49 @@ alias smbmap='smbmap --no-banner'
 alias verse="verse | tr -s ' '| tr -d '\n' | sed 's/^ //'"
 
 # --- functions ---
+function ww() {
+    # Check if an argument was provided
+    if [ -z "$1" ]; then
+        echo "Usage: ww <target>"
+        return 1
+    fi
+
+    # Extract a clean filename from the URL/target
+    clean_name=$(echo "$1" | sed -E 's/https?:\/\///g' | sed -E 's/[:\/]/_/g' | sed -E 's/\./_/g')
+    #timestamp=$(date +"%Y%m%d_%H%M%S")
+    #base_filename="${clean_name}_${timestamp}"
+    base_filename="${clean_name}"
+    
+    # Create output directory if it doesn't exist
+    output_dir="."
+    mkdir -p "$output_dir"
+    
+    # Define filenames for different output formats
+    txt_file="$output_dir/${base_filename}.txt"
+    xml_file="$output_dir/${base_filename}.xml"
+    json_file="$output_dir/${base_filename}.json"
+    
+    echo "[+] Scanning $1..."
+    echo "[+] Results will be saved to:"
+    echo -e "\tText: $txt_file"
+    echo -e "\tXML: $xml_file"
+    echo -e "\tJSON: $json_file"
+    echo "\n---------------------\n\n" 
+    # Run whatweb with all output formats
+    whatweb -v "$1" --log-xml="$xml_file" --log-json="$json_file" | tee "$txt_file"
+    echo "\n---------------------\n\n" 
+    echo "Scan complete!"
+}
+
+whatweb_clean() {
+  if [ -z "$1" ]; then
+    echo "Usage: whatweb_clean <url_or_ip>"
+    return 1
+  fi
+
+  whatweb "$1" | tr -d "," | sed -r 's/\]\ /\]\n\t/g'
+}
+
 
 function zat(){
     zathura $1 >/dev/null 2>&1 &; disown
