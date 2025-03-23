@@ -62,6 +62,8 @@ install_config(){
         vlc \
         timg \
         gimp \
+        ranger \
+        ueberzug \
         btm
 
     # global install of neovim
