@@ -348,13 +348,13 @@ function ww() {
     fi
 
     # Display scan details
-    echo -e "Scanning $target..."
-    echo -e "Options: ${options[*]}"
-    echo -e "Results will be saved to:"
+    echo -e "[+]Scanning $target..."
+    echo -e "[+]Options: ${options[*]}"
+    echo -e "[+]Results will be saved to:"
     echo -e "\n----------------------\n"
-    echo -e "\tText: $txt_file"
-    echo -e "\tXML: $xml_file"
-    echo -e "\tJSON: $json_file"
+    echo -e "\tText:  $txt_file"
+    echo -e "\tXML:   $xml_file"
+    echo -e "\tJSON:  $json_file"
     echo -e "\n----------------------\n\n"
 
     # Run whatweb with the specified options and output formats
