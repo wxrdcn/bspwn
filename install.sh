@@ -64,6 +64,7 @@ install_config(){
         gimp \
         ranger \
         ueberzug \
+        picom \
         btm
 
     # global install of neovim
