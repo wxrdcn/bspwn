@@ -9,8 +9,14 @@
 ### Wallpaper
 # Use feh to set wallpaper
 
-BG_DIR=$HOME/.config/bspwm/wallpapers/
-feh --bg-fill "$BG_DIR/background.png" 2> /dev/null &
+# if no wallpaper available in ~/Pictures/ fallback to default 
+if [ -e ~/Pictures/wallpapers/bitmap.png ]; then
+  feh --bg-fill ~/Pictures/wallpapers/bitmap.png
+else
+  BG_DIR=$HOME/.config/bspwm/wallpapers/
+  feh --bg-fill "$BG_DIR/background.png" 2> /dev/null &
+fi
+
 #hsetroot -add "#760000" -add "#000000" -gradient 0
 #hsetroot -root -solid "#111111"
 
