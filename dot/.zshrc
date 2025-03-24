@@ -297,7 +297,7 @@ alias img="w3m -o ext_image_viewer=0"
 alias bspwmrc=". ~/.config/bspwm/bspwmrc"
 alias virtualbox="virtualbox -style fusion %U"
 alias less="batcat -p --color=always"
-alias cal="ncal -C"
+alias cal="ncal -bwA5"
 alias acs="apt-cache search"
 alias del="/bin/rm -rfv"
 alias which="which -a"
@@ -399,17 +399,40 @@ function wttr(){
     curl wttr.in
 }
 
-function mkt(){
-    if [ -z "$1" ]
-    then
-        echo "Provide a Folder name\nusage: mkt <foldername>"
-    else
-        echo "\n[ Creating folder $1 @ $PWD ]\n"
-        mkdir -p $1/{content,enum,xploit}
-        cd $1
-        ls -lha
+function mkt() {
+    # Combine all arguments into a single folder name
+    local fname="${(j: :)@}"
+
+    if [[ -z "$fname" ]]; then
+        echo >&2 "Provide a folder name\nusage: mkt <folder name>"
+        return 1
     fi
+
+    printf "\n\033[1;34m[ %s/%s ]\033[0m\n\n" "$PWD" "$fname"
+
+    # Create directory structure
+    if ! mkdir -p "$fname"/{recon/{nmap/{tcp,udp},tcp,udp},loot,xploit/{bx,px}/{cve,script,payload,misc}} 2>/dev/null; then
+        echo >&2 "Error: Failed to create directory structure"
+        return 2
+    fi
+
+    # Create base files
+    if ! touch "$fname"/{log.txt,credentials.txt,summary.md} 2>/dev/null; then
+        echo >&2 "Error: Failed to create initial files"
+        return 3
+    fi
+
+    ls -ld "$fname"
+
+    # Enter directory and list contents
+#    if cd "$fname" 2>/dev/null; then
+#        ls -lha
+#    else
+#        echo >&2 "Error: Failed to enter directory '$fname'"
+#        return 4
+#    fi
 }
+
 
 function xps(){
     if [ -z "$1" ]
