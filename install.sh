@@ -90,7 +90,7 @@ install_packages() {
         dmenu dunst libnotify-bin lxappearance pavucontrol pamixer
 
         # Miscellaneous Utilities
-        brightnessctl calc chrony ncal ranger redshift translate-shell zathura
+        brightnessctl calc chrony ncal ranger redshift translate-shell zathura xcalib
     )
 
     log "Updating package list..."
