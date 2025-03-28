@@ -28,6 +28,17 @@ alt + shift + Escape
 super + Escape
 	bspc wm -r
 
+# Toggle focus follows pointer
+super + p
+    current_state=$(bspc config focus_follows_pointer); \
+    if [ "$current_state" = "true" ]; then \
+        bspc config focus_follows_pointer false; \
+        notify-send -u low "Focus Follows Pointer: OFF"; \
+    else \
+        bspc config focus_follows_pointer true; \
+        notify-send -u low "Focus Follows Pointer: ON"; \
+    fi
+
 
 
 #selects a region & saves

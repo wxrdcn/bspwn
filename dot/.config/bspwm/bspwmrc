@@ -8,7 +8,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 bspc monitor -d 1 2 3 4 5 6 7 8 9 0
 
 #border colors
-bspc config focused_border_color "#E01B24"
+bspc config focused_border_color "#A90A0A"
 #border width, gap, ratio etc...
 bspc config border_width         1 
 bspc config window_gap           0
@@ -30,8 +30,7 @@ bspc rule -a "Tk" state=floating
 bspc rule -a "megasync" state=tiled
 bspc rule -a "pavucontrol" state=floating rectangle=1280x800+160+50
 #bspc rule -a "*" title="tui-network" state=floating rectangle=1280x800+160+50
-bspc rule -a "*" title="Hex Color Picker" state=floating rectangle=400x400
-
+bspc rule -a "Color_picker_gui.py" state=floating rectangle=400x400
 
 #scripts
 "$HOME/.config/bspwm/start"
