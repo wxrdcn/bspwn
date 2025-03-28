@@ -29,19 +29,19 @@ error_exit() {
 # Create compressed backup
 create_backup() {
     local backup_files=()
-    
+
     # Collect dotfiles
     while IFS= read -r -d $'\0' file; do
         backup_files+=("$file")
     done < <(find "$CONFIG_DIR" -maxdepth 1 -type f -print0)
-    
+
     # Collect .config directories
     while IFS= read -r -d $'\0' dir; do
         backup_files+=("$dir")
     done < <(find "$CONFIG_DIR/.config" -maxdepth 1 -type d -print0)
-    
+
     # Create compressed backup
-    tar -czf "$BACKUP_DIR" --ignore-failed-read "${backup_files[@]}" && 
+    tar -czf "$BACKUP_DIR" --ignore-failed-read "${backup_files[@]}" &&
     log "Created compressed backup at $BACKUP_DIR"
 }
 
@@ -52,53 +52,53 @@ link_configs() {
         for file do
             base_file="${file##*/}"
             ln -sfv "$file" "$HOME/$base_file"
-        done' bash {} +
-    
+    done' bash {} +
+
     # Handle .config directories
     find "$CONFIG_DIR/.config" -maxdepth 1 -type d -exec bash -c '
         for dir do
             base_dir="${dir##*/}"
             ln -sfnv "$dir" "$HOME/.config/$base_dir"
-        done' bash {} +
+    done' bash {} +
 }
 
 # Enhanced package installation
 install_packages() {
     local required_packages=(
         # System Utilities
-        btm htop iftop moreutils shellcheck scrub 
-        
+        btm htop iftop moreutils shellcheck scrub
+
         # Desktop Environment & Window Manager
-        bspwm i3lock-color picom polybar rofi sxhkd xinput 
-        
+        bspwm i3lock-color picom polybar rofi sxhkd xinput
+
         # XFCE Utilities
-        xfce4 xfce4-clipman xfce4-goodies xfce4-power-manager xfce4-screensaver nm-applet lxpolkit 
-        
+        xfce4 xfce4-clipman xfce4-goodies xfce4-power-manager xfce4-screensaver nm-applet lxpolkit
+
         # Terminal Utilities
-        bat fastfetch gping kitty lsd neovim xclip xsel 
-        
+        bat fastfetch gping kitty lsd neovim xclip xsel
+
         # Media & Graphics
-        feh flameshot gimp mpv timg ueberzug vlc 
-        
+        feh flameshot gimp mpv timg ueberzug vlc
+
         # Network & Connectivity
-        kdeconnect 
-        
+        kdeconnect
+
         # Security & Privacy
-        apg pwgen 
-        
+        apg pwgen
+
         # Notifications & Appearance
-        dmenu dunst libnotify-bin lxappearance pavucontrol pamixer 
-        
+        dmenu dunst libnotify-bin lxappearance pavucontrol pamixer
+
         # Miscellaneous Utilities
         brightnessctl calc chrony ncal ranger redshift translate-shell zathura
-  )
+    )
 
     log "Updating package list..."
     sudo apt update || error_exit "Failed to update packages"
-    
+
     log "Installing required packages..."
     sudo apt install -y "${required_packages[@]}" || error_exit "Package installation failed"
-    
+
     log "Removing existing NeoVim..."
     sudo apt remove --purge -y neovim* || log "No existing NeoVim found"
 }
@@ -107,11 +107,11 @@ install_packages() {
 install_neovim() {
     local nvim_url="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
     local temp_dir=$(mktemp -d)
-    
+
     log "Installing NeoVim ${NVIM_VERSION}..."
     wget -q "$nvim_url" -O "$temp_dir/nvim.tar.gz" || error_exit "Failed to download NeoVim"
     tar -xzf "$temp_dir/nvim.tar.gz" -C "$temp_dir" || error_exit "Failed to extract NeoVim"
-    
+
     sudo install -Dm755 "$temp_dir/nvim-linux-x86_64/bin/nvim" "/usr/local/bin/nvim"
     sudo cp -rv "$temp_dir/nvim-linux-x86_64/share/man/man1/nvim.1" "/usr/local/share/man/man1/"
     sudo cp -rv "$temp_dir/nvim-linux-x86_64/lib" "/lib"
@@ -121,7 +121,6 @@ install_neovim() {
 }
 
 install_obsidian(){
-
     wget -q "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.8.9/obsidian_1.8.9_amd64.deb" -O "/dev/shm/obsidian_1.8.9_amd64.deb"
     sudo dpkg -i "/dev/shm/obsidian_1.8.9_amd64.deb"
 }
@@ -136,7 +135,7 @@ install_fonts() {
     local tmp_dir="/dev/shm/nerd-fonts"
 
     mkdir -p "$tmp_dir"
-    
+
     for font in "${fonts[@]}"; do
         wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/$font.zip" -O "$tmp_dir/$font.zip" &&
         unzip -q "$tmp_dir/$font.zip" -d "/usr/share/fonts/$font"
@@ -146,16 +145,85 @@ install_fonts() {
     rm -rf "$tmp_dir"
 }
 
-# Main installation flow
-main() {
-    setup_project_dir
-    create_backup
-    install_packages
-    install_neovim
-    install_obsidian
-    install_fonts
-    link_configs
-    log "Installation completed successfully!"
-    log "Backup available at: $BACKUP_DIR"
+# Install NvChad configuration
+install_nvchad() {
+    log "Installing NvChad configuration..."
+    rm -rf ~/.config/nvim || log "Failed to remove ~/.config/nvim"
+    rm -rf ~/.local/state/nvim || log "Failed to remove ~/.local/state/nvim"
+    rm -rf ~/.local/share/nvim || log "Failed to remove ~/.local/share/nvim"
+    git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
+    log "NvChad installed successfully."
 }
-main "$@"
+
+# Parse command-line arguments and execute corresponding functions
+parse_arguments() {
+    local full=0 pkg=0 config=0 nvim=0 nvchad=0 fonts=0 theme=0 obsidian=0
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -full)    full=1 ;;
+            -pkg)     pkg=1 ;;
+            -config)  config=1 ;;
+            -nvim)    nvim=1 ;;
+            -nvchad)  nvchad=1 ;;
+            -fonts)   fonts=1 ;;
+            -theme)   theme=1 ;;
+            -obsidian) obsidian=1 ;;
+            *) error_exit "Unknown option: $1" ;;
+        esac
+        shift
+    done
+
+    # Print usage and exit if no options were provided
+    if [[ $has_options -eq 0 ]]; then
+        echo -e "Usage: $0 [OPTIONS]"
+        echo -e "Options:"
+        echo -e "\t-full      Perform full installation (includes all options below)"
+        echo -e "\t-pkg       Install system packages"
+        echo -e "\t-config    Link configuration files"
+        echo -e "\t-nvim      Install NeoVim"
+        echo -e "\t-nvchad    Install NvChad configuration"
+        echo -e "\t-fonts     Install fonts"
+        echo -e "\t-theme     Install GTK theme and icons"
+        echo -e "\t-obsidian  Install Obsidian"
+        exit 1
+    fi
+
+    # Handle -full flag (overrides others)
+    if [[ $full -eq 1 ]]; then
+        log "Starting full installation..."
+        setup_project_dir
+        create_backup
+        install_packages
+        install_neovim
+        install_obsidian
+        install_fonts
+        link_configs
+        log "Full installation completed!"
+        log "Backup available at: $BACKUP_DIR"
+        return 0
+    fi
+
+    # Determine if setup and backup are needed
+    local need_setup=0 need_backup=0
+    [[ $config -eq 1 || $theme -eq 1 ]] && need_setup=1
+    [[ $config -eq 1 ]] && need_backup=1
+
+    # Execute pre-steps
+    [[ $need_setup -eq 1 ]] && setup_project_dir
+    [[ $need_backup -eq 1 ]] && create_backup
+
+    # Execute requested functions in order
+    [[ $pkg -eq 1 ]]     && install_packages
+    [[ $nvim -eq 1 ]]    && install_neovim
+    [[ $obsidian -eq 1 ]] && install_obsidian
+    [[ $fonts -eq 1 ]]   && install_fonts
+    [[ $config -eq 1 ]]  && link_configs
+    [[ $theme -eq 1 ]]   && install_gtk_theme
+    [[ $nvchad -eq 1 ]]  && install_nvchad
+
+    log "Selected operations completed."
+}
+
+# Start script execution
+parse_arguments "$@"
