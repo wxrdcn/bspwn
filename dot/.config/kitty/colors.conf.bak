@@ -21,17 +21,17 @@ color15 #c0caf5
 
 background #111111
 foreground #c0caf5
-cursor #950404
+cursor #990000
 
 
 # Other color settings
 selection_background #28344a
 selection_foreground #7aa2f7
 tab_bar_background  #1c1c1c
-active_border_color #950404
-inactive_border_color #950404
+active_border_color #990000
+inactive_border_color #990000
 
-active_tab_foreground   #c60505
+active_tab_foreground   #FF0000
 active_tab_background   #121212
 active_tab_font_style   bold
 inactive_tab_foreground #9e9e9e
