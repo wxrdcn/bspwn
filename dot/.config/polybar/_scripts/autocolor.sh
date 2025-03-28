@@ -61,3 +61,17 @@ sed -i "s|bg_color='%{%K{#\([0-9A-Fa-f]\{6\}\)}%}'|bg_color='%{%K{$THIRD_COLOR}%
 
 echo "Colors updated successfully!"
 echo "First color ($FIRST_COLOR), Second color ($SECOND_COLOR), and Third color ($THIRD_COLOR) applied."
+
+# Reload bspwm colors and settings
+bspc wm -r
+
+# Update kitty colors if running inside kitty
+if [ -n "$KITTY_PID" ] || [ "$TERM" = "xterm-kitty" ]; then
+    # If using a kitty color scheme file (e.g., ~/.config/kitty/current-theme.conf)
+    if [ -f ~/.config/kitty/current-theme.conf ]; then
+        kitty @ set-colors --all --configured ~/.config/kitty/current-theme.conf
+    else
+        # Alternatively, reload the entire config
+        kitty @ load-config
+    fi
+fi
