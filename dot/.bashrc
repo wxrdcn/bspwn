@@ -76,12 +76,13 @@ get_ipaddr() {
 
 # --- Red-Themed Prompt with IP ---
 set_bash_prompt() {
-    reset_color="$(tput sgr0)"
-    red="$(tput setaf 160)"
-    bold=$(tput bold)
+#    reset_color="$(tput sgr0)"
+#    red="$(tput setaf 160)"
+#    bold=$(tput bold)
 
     local ipaddr=$(get_ipaddr)
-    PS1="${bold}${red}[ \u@${ipaddr} \w ]$ ${reset_color}"
+#    PS1="${bold}${red}[ \u@${ipaddr} \w ]$ ${reset_color}"
+    PS1="[ \u@${ipaddr} \w ]$ "
 }
 PROMPT_COMMAND="set_bash_prompt"
 
