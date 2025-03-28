@@ -7,12 +7,15 @@
 
 
 ### Wallpaper
-# Use feh to set wallpaper
+# Use feh to set image wallpaper, example
+#feh --bg-fill ~/Pictures/wallpapers/bitmap.png
 
-feh --bg-fill ~/Pictures/wallpapers/bitmap.png
-
+# solid color
 #hsetroot -add "#760000" -add "#000000" -gradient 0
 #hsetroot -root -solid "#111111"
+
+# default dynamic
+hsetroot -solid "#8b0000" -center "$HOME/.config/bspwm/_img/kali.png" 
 
 
 ### Mouse and Touchpad Settings

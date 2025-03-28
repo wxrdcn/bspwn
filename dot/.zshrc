@@ -364,9 +364,14 @@ function ww() {
 }
 
 
+# Open PDFs with Zathura (detached from terminal)
+function zat() {
+  zathura "$@" &!
+}
 
-function zat(){
-    zathura $1 >/dev/null 2>&1 &; disown
+# Open documents with Atril (detached from terminal)
+function atril() {
+  command atril "$@" &!
 }
 
 function java11(){
