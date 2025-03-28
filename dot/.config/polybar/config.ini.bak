@@ -22,7 +22,7 @@
 background = #000000
 background-alt = #282A2E
 foreground = #ffffff
-primary = #c60505
+primary = #FF0000
 secondary = #8ABEB7
 alert = #A54242
 disabled = #707880
@@ -31,7 +31,7 @@ disabled = #707880
 red = #c30505
 green = #43a047
 yellow = #fdd835
-occupied = #950404
+occupied = #990000
 inactive = #121212
 numberinact = #4D4D4D
 numberact = #BDBDBD
@@ -123,7 +123,7 @@ interval = 25
 
 mount-0 = /
 
-label-mounted = %{F#c60505}%mountpoint%%{F-} %percentage_free%%
+label-mounted = %{F#FF0000}%mountpoint%%{F-} %percentage_free%%
 
 label-unmounted = %mountpoint% not mounted
 label-unmounted-foreground = ${colors.disabled}
@@ -213,7 +213,7 @@ interval = 1
 ;date = %H:%M
 ;date-alt = %Y-%m-%d %H:%M:%S
 #date = %d/%m/%y %{F#c60505}󯿠%{F-} %I:%M:%S
-date = %d/%m/%y %{F#c60505} X %{F-} %I:%M:%S
+date = %d/%m/%y %{F#FF0000} X %{F-} %I:%M:%S
 date-alt = %Y-%b-%d %a | %I:%M:%S | %z %Z
 
 label = %date%
@@ -238,7 +238,7 @@ format = <label>
 
 ; Available tokens:
 ;   %percentage% (default)
-label = %{F#c60505}BKL%{F-}%percentage:4:3%% 
+label = %{F#FF0000}BKL%{F-}%percentage:4:3%% 
 
 enable-scroll=true
 

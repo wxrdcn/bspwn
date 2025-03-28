@@ -35,4 +35,4 @@ nnoremap <leader>P "+P
 
 set clipboard=unnamedplus
 set t_Co=256
-colorscheme retrobox
+colorscheme iceberg
