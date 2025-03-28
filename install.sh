@@ -65,7 +65,32 @@ link_configs() {
 # Enhanced package installation
 install_packages() {
     local required_packages=(
-      bspwm kitty neovim polybar rofi sxhkd flameshot pamixer brightnessctl i3lock-color feh libnotify-bin xclip dmenu betterlockscreen lxappearance lsd bat pavucontrol xfce4-screensaver xfce4-power-manager xfce4-goodies xfce4 scrub shellcheck hsetroot lxpolkit zathura xinput xsel fastfetch htop gping apg pwgen moreutils iftop translate-shell redshift chrony ncal calc moreutils mpv vlc timg gimp ranger ueberzug picom btm 
+        # System Utilities
+        btm htop iftop moreutils shellcheck scrub 
+        
+        # Desktop Environment & Window Manager
+        bspwm i3lock-color picom polybar rofi sxhkd xinput 
+        
+        # XFCE Utilities
+        xfce4 xfce4-clipman xfce4-goodies xfce4-power-manager xfce4-screensaver nm-applet lxpolkit 
+        
+        # Terminal Utilities
+        bat fastfetch gping kitty lsd neovim xclip xsel 
+        
+        # Media & Graphics
+        feh flameshot gimp mpv timg ueberzug vlc 
+        
+        # Network & Connectivity
+        kdeconnect 
+        
+        # Security & Privacy
+        apg pwgen 
+        
+        # Notifications & Appearance
+        dmenu dunst libnotify-bin lxappearance pavucontrol pamixer 
+        
+        # Miscellaneous Utilities
+        brightnessctl calc chrony ncal ranger redshift translate-shell zathura
   )
 
     log "Updating package list..."
