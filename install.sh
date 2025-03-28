@@ -1,200 +1,136 @@
 #!/bin/bash
 
 # Global configuration
-CONFIG_DIR="$PWD/dot"
-BACKUP_DIR="$HOME/_dotfiles_backup_$(date +'%Y%m%d%H%M%S')"
-NVIM_VERSION="v0.10.4"
-OBSIDIAN_VERSION="1.8.9"
-NERD_FONTS_VERSION="v3.3.0"
+CONFIG_DIR="$HOME/bspwn/dot"
+BACKUP_DIR="$HOME/.dotfiles_backup_$(date +'%Y%m%d%H%M%S').tar.gz"
+NVIM_VERSION="v0.11.0"
 
-# Logging function
-log() {
-    echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*"
+# Ensure project is in $HOME/bspwn
+setup_project_dir() {
+    if [[ "$PWD" != "$HOME/bspwn" ]]; then
+        mkdir -p "$HOME/bspwn" || error_exit "Failed to create bspwn directory"
+        mv -- * .[!.]* ..?* "$HOME/bspwn/" 2>/dev/null
+        cd "$HOME/bspwn" || error_exit "Failed to enter bspwn directory"
+        log "Project moved to $HOME/bspwn"
+    fi
 }
 
-# Error handling function
+# Enhanced logging
+log() {
+    printf "[%s] %s\n" "$(date +'%Y-%m-%d %H:%M:%S')" "$*"
+}
+
+# Error handling
 error_exit() {
     log "ERROR: $1" >&2
     exit 1
 }
 
-# Create backup directory
-create_backup_dir() {
-    mkdir -p "$BACKUP_DIR" || error_exit "Failed to create backup directory"
-    log "Backup directory created: $BACKUP_DIR"
+# Create compressed backup
+create_backup() {
+    local backup_files=()
+    
+    # Collect dotfiles
+    while IFS= read -r -d $'\0' file; do
+        backup_files+=("$file")
+    done < <(find "$CONFIG_DIR" -maxdepth 1 -type f -print0)
+    
+    # Collect .config directories
+    while IFS= read -r -d $'\0' dir; do
+        backup_files+=("$dir")
+    done < <(find "$CONFIG_DIR/.config" -maxdepth 1 -type d -print0)
+    
+    # Create compressed backup
+    tar -czf "$BACKUP_DIR" --ignore-failed-read "${backup_files[@]}" && 
+    log "Created compressed backup at $BACKUP_DIR"
 }
 
-# Backup existing configuration files
-backup_existing_configs() {
-    create_backup_dir
-
-    # Backup dot files
-    local dot_files=(".bashrc" ".vimrc" ".zshrc")
-    for file in "${dot_files[@]}"; do
-        if [ -f "$HOME/$file" ]; then
-            cp "$HOME/$file" "$BACKUP_DIR/$file" && 
-            log "Backed up $file to $BACKUP_DIR"
-        fi
-    done
-
-    # Backup .config directories
-    local config_dirs=(
-        "bspwm" "kitty" "nvim" "picom" 
-        "polybar" "ranger" "rofi" "sxhkd"
-    )
-    for dir in "${config_dirs[@]}"; do
-        if [ -d "$HOME/.config/$dir" ]; then
-            cp -r "$HOME/.config/$dir" "$BACKUP_DIR/$dir" && 
-            log "Backed up $dir config to $BACKUP_DIR"
-        fi
-    done
+# Safer symlink creation
+link_configs() {
+    # Handle dotfiles
+    find "$CONFIG_DIR" -maxdepth 1 -type f -exec bash -c '
+        for file do
+            base_file="${file##*/}"
+            ln -sfv "$file" "$HOME/$base_file"
+        done' bash {} +
+    
+    # Handle .config directories
+    find "$CONFIG_DIR/.config" -maxdepth 1 -type d -exec bash -c '
+        for dir do
+            base_dir="${dir##*/}"
+            ln -sfnv "$dir" "$HOME/.config/$base_dir"
+        done' bash {} +
 }
 
-# Install system packages
+# Enhanced package installation
 install_packages() {
-    local packages=(
-        # Window Management
-        bspwm sxhkd polybar rofi i3lock-color
-        
-        # Terminal & Utilities
-        kitty neovim xclip dmenu
-        
-        # System Tools
-        lxappearance lsd bat pavucontrol
-        xfce4-screensaver xfce4-power-manager
-        
-        # Multimedia
-        feh flameshot pamixer brightnessctl
-        mpv vlc gimp
-        
-        # Development & Monitoring
-        shellcheck htop gping fastfetch
-        
-        # Extras
-        zathura ranger picom redshift
-    )
+    local required_packages=(
+      bspwm kitty neovim polybar rofi sxhkd flameshot pamixer brightnessctl i3lock-color feh libnotify-bin xclip dmenu betterlockscreen lxappearance lsd bat pavucontrol xfce4-screensaver xfce4-power-manager xfce4-goodies xfce4 scrub shellcheck hsetroot lxpolkit zathura xinput xsel fastfetch htop gping apg pwgen moreutils iftop translate-shell redshift chrony ncal calc moreutils mpv vlc timg gimp ranger ueberzug picom btm 
+  )
 
-    export DEBIAN_FRONTEND=noninteractive
-    sudo apt update || error_exit "Failed to update package list"
-    sudo apt install -y "${packages[@]}" || error_exit "Package installation failed"
+    log "Updating package list..."
+    sudo apt update || error_exit "Failed to update packages"
+    
+    log "Installing required packages..."
+    sudo apt install -y "${required_packages[@]}" || error_exit "Package installation failed"
+    
+    log "Removing existing NeoVim..."
+    sudo apt remove --purge -y neovim* || log "No existing NeoVim found"
 }
 
-# Install NeoVim globally
+# NeoVim installation
 install_neovim() {
     local nvim_url="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
-    local temp_dir="/dev/shm"
-
-    # Download NeoVim
-    wget -q "$nvim_url" -O "$temp_dir/nvim.tar.gz" || error_exit "Failed to download NeoVim"
+    local temp_dir=$(mktemp -d)
     
-    # Extract and move binaries
+    log "Installing NeoVim ${NVIM_VERSION}..."
+    wget -q "$nvim_url" -O "$temp_dir/nvim.tar.gz" || error_exit "Failed to download NeoVim"
     tar -xzf "$temp_dir/nvim.tar.gz" -C "$temp_dir" || error_exit "Failed to extract NeoVim"
     
-    # Backup existing NeoVim installation
-    if [ -d "/usr/local/lib/nvim" ]; then
-        sudo mv /usr/local/lib/nvim /usr/local/lib/nvim_backup
-    fi
+    sudo install -Dm755 "$temp_dir/nvim-linux-x86_64/bin/nvim" "/usr/local/bin/nvim"
+    sudo cp -rv "$temp_dir/nvim-linux-x86_64/share/man/man1/nvim.1" "/usr/local/share/man/man1/"
+    sudo cp -rv "$temp_dir/nvim-linux-x86_64/lib" "/lib"
 
-    # Install NeoVim
-    sudo mv "$temp_dir/nvim-linux-x86_64/bin"/* /usr/local/bin/
-    sudo mv "$temp_dir/nvim-linux-x86_64/share/man/man1/nvim.1" /usr/local/share/man/man1/
-    sudo mv "$temp_dir/nvim-linux-x86_64/lib"/* /usr/local/lib/
-
-    # Clean up
-    rm -rf "$temp_dir/nvim-linux-x86_64" "$temp_dir/nvim.tar.gz"
+    rm -rf "$temp_dir"
+    log "NeoVim installed successfully"
 }
 
-# Install NVChad
-install_nvchad() {
-    local nvchad_dir="$HOME/.config/nvim"
-    
-    # Remove existing NeoVim config
-    [ -d "$nvchad_dir" ] && rm -rf "$nvchad_dir"
+install_obsidian(){
 
-    # Clone NVChad
-    git clone https://github.com/NvChad/NvChad "$nvchad_dir" || error_exit "Failed to clone NVChad"
+    wget -q "https://github.com/obsidianmd/obsidian-releases/releases/download/v1.8.9/obsidian_1.8.9_amd64.deb" -O "/dev/shm/obsidian_1.8.9_amd64.deb"
+    sudo dpkg -i "/dev/shm/obsidian_1.8.9_amd64.deb"
 }
 
-# Create symbolic links for configuration files
-link_config_files() {
-    # Link dot files
-    local dot_files=(".bashrc" ".vimrc" ".zshrc")
-    for file in "${dot_files[@]}"; do
-        ln -sf "$CONFIG_DIR/$file" "$HOME/$file" && 
-        log "Linked $file"
-    done
-
-    # Link .config directories
-    local config_dirs=(
-        "bspwm" "kitty" "nvim" "picom" 
-        "polybar" "ranger" "rofi" "sxhkd"
-    )
-    for dir in "${config_dirs[@]}"; do
-        ln -sfn "$CONFIG_DIR/.config/$dir" "$HOME/.config/$dir" && 
-        log "Linked $dir config"
-    done
+install_gtk_theme(){
+    sudo cp -rv "$CONFIG_DIR/usr/share/themes" "/usr/share/themes"
+    sudo cp -rv "$CONFIG_DIR/usr/share/icons" "/usr/share/icons"
 }
 
-# Install fonts
 install_fonts() {
     local fonts=("FiraCode" "Hack")
-    local fonts_dir="/usr/share/fonts"
+    local tmp_dir="/dev/shm/nerd-fonts"
 
+    mkdir -p "$tmp_dir"
+    
     for font in "${fonts[@]}"; do
-        local font_url="https://github.com/ryanoasis/nerd-fonts/releases/download/${NERD_FONTS_VERSION}/${font}.zip"
-        
-        # Download and extract fonts
-        wget -q "$font_url" -O "/dev/shm/${font}.zip" || error_exit "Failed to download $font font"
-        sudo mkdir -p "$fonts_dir/$font"
-        sudo unzip -o "/dev/shm/${font}.zip" -d "$fonts_dir/$font" || error_exit "Failed to extract $font font"
-        
-        # Clean up
-        rm "/dev/shm/${font}.zip"
+        wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.3.0/$font.zip" -O "$tmp_dir/$font.zip" &&
+        unzip -q "$tmp_dir/$font.zip" -d "/usr/share/fonts/$font"
     done
+
+    fc-cache -fv  # Refresh the font cache
+    rm -rf "$tmp_dir"
 }
 
-# Install themes and icons
-install_themes() {
-    # Copy themes and icons with forced override
-    sudo cp -rf "$PWD/usr/share/themes"/* "/usr/share/themes/"
-    sudo cp -rf "$PWD/usr/share/icons"/* "/usr/share/icons/"
-}
-
-# Main installation function
+# Main installation flow
 main() {
-    # Parse command-line arguments
-    local install_mode="full"
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-            --config-only) install_mode="config" ;;
-            --packages-only) install_mode="packages" ;;
-            *) error_exit "Unknown argument: $1" ;;
-        esac
-        shift
-    done
-
-    # Run appropriate installation steps
-    case "$install_mode" in
-        "full")
-            backup_existing_configs
-            install_packages
-            install_neovim
-            install_nvchad
-            link_config_files
-            install_fonts
-            install_themes
-            ;;
-        "config")
-            backup_existing_configs
-            link_config_files
-            ;;
-        "packages")
-            install_packages
-            ;;
-    esac
-
+    setup_project_dir
+    create_backup
+    install_packages
+    install_neovim
+    install_obsidian
+    install_fonts
+    link_configs
     log "Installation completed successfully!"
+    log "Backup available at: $BACKUP_DIR"
 }
-
-# Run main function
 main "$@"
