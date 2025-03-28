@@ -15,7 +15,7 @@
 #hsetroot -root -solid "#111111"
 
 # default dynamic
-hsetroot -solid "#8b0000" -center "$HOME/.config/bspwm/_img/kali.png" 
+hsetroot -solid "#c60505" -center "$HOME/.config/bspwm/_img/kali.png" 
 
 
 ### Mouse and Touchpad Settings
