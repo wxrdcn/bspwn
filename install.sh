@@ -158,17 +158,18 @@ install_nvchad() {
 # Parse command-line arguments and execute corresponding functions
 parse_arguments() {
     local full=0 pkg=0 config=0 nvim=0 nvchad=0 fonts=0 theme=0 obsidian=0
+    local has_options=0
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -full)    full=1 ;;
-            -pkg)     pkg=1 ;;
-            -config)  config=1 ;;
-            -nvim)    nvim=1 ;;
-            -nvchad)  nvchad=1 ;;
-            -fonts)   fonts=1 ;;
-            -theme)   theme=1 ;;
-            -obsidian) obsidian=1 ;;
+            -full)    full=1; has_options=1 ;;
+            -pkg)     pkg=1; has_options=1 ;;
+            -config)  config=1; has_options=1 ;;
+            -nvim)    nvim=1; has_options=1 ;;
+            -nvchad)  nvchad=1; has_options=1 ;;
+            -fonts)   fonts=1; has_options=1 ;;
+            -theme)   theme=1; has_options=1 ;;
+            -obsidian) obsidian=1; has_options=1 ;;
             *) error_exit "Unknown option: $1" ;;
         esac
         shift
