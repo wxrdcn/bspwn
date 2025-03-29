@@ -66,7 +66,7 @@ link_configs() {
 install_packages() {
     local required_packages=(
         # System Utilities
-        btm htop iftop moreutils shellcheck scrub
+        btm btop htop iftop moreutils shellcheck scrub
 
         # Desktop Environment & Window Manager
         bspwm i3lock-color picom polybar rofi sxhkd xinput
@@ -81,7 +81,7 @@ install_packages() {
         feh flameshot gimp mpv timg ueberzug vlc
 
         # Network & Connectivity
-        kdeconnect
+        kdeconnect vnstat
 
         # Security & Privacy
         apg pwgen
