@@ -91,6 +91,10 @@ install_packages() {
 
         # Miscellaneous Utilities
         brightnessctl calc chrony ncal ranger redshift translate-shell zathura xcalib
+      
+        # drive backup
+        rclone
+
     )
 
     log "Updating package list..."
