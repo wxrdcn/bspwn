@@ -12,35 +12,10 @@ lock="🔒 Lock"
 suspend="💤 Sleep"
 logout="🚪 Logout"
 
-# Function: Confirmation dialog
-confirm_exit() {
-	rofi -dmenu \
-		-i \
-		-no-fixed-num-lines \
-		-p "Are you sure? : " \
-		-theme "$dir/confirm.rasi"
-}
 
 # Function: Message dialog
 msg() {
 	rofi -theme "$dir/message.rasi" -e "$1"
-}
-
-# Function: Handle confirmation
-handle_confirmation() {
-	local action=$1
-	ans=$(confirm_exit)
-	case "$ans" in
-		[yY]*)
-			eval "$action"
-			;;
-		[nN]*)
-			exit 0
-			;;
-		*)
-			msg "Invalid input. Please type 'yes' or 'no'."
-			;;
-	esac
 }
 
 # Rofi menu options
@@ -52,10 +27,10 @@ chosen=$(echo -e "$options" | $rofi_command -p "Uptime: $uptime" -dmenu -selecte
 # Handle the selected option
 case "$chosen" in
 	$shutdown)
-		handle_confirmation "shutdown -h now"
+		shutdown -h now
 		;;
 	$reboot)
-		handle_confirmation "shutdown -r now"
+		 shutdown -r now
 		;;
 	$lock)
 		if command -v xfce4-screensaver-command &> /dev/null; then
@@ -65,16 +40,10 @@ case "$chosen" in
 		fi
 		;;
 	$suspend)
-		handle_confirmation "mpc -q pause; amixer set Master mute; systemctl suspend"
+		 mpc -q pause; amixer set Master mute; systemctl suspend
 		;;
 	$logout)
-		handle_confirmation "
-			if [[ \"$DESKTOP_SESSION\" == \"bspwm\" ]]; then
-				bspc quit
-			else
-				msg 'Unsupported desktop session: $DESKTOP_SESSION'
-			fi
-		"
+		bspc quit
 		;;
 	*)
 		msg "No valid option selected."
