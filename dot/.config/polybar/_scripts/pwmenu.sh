@@ -45,7 +45,7 @@ case "$chosen" in
 	$logout)
 		bspc quit
 		;;
-	*)
-		msg "No valid option selected."
-		;;
+#   *)
+#	  msg "No valid option selected."
+#		;;
 esac
