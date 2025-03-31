@@ -16,6 +16,19 @@ validate_ip() {
     return $stat
 }
 
+# Copy target to clipboard if --copy flag is provided
+if [ "$1" = "--copy" ]; then
+    if [ -f "$TARGET_FILE" ] && [ "$(cat "$TARGET_FILE")" != "none" ]; then
+        cat "$TARGET_FILE" | tr -d "\n" | xclip -selection clipboard
+        echo "Target copied to clipboard"
+        notify-send -u low "$(cat $TARGET_FILE) copied to clipboard"
+        exit 0
+    else
+        echo "No target to copy"
+        exit 1
+    fi
+fi
+
 # Clear target if -c flag is provided
 if [ "$1" = "-c" ]; then
     echo none > "$TARGET_FILE"
@@ -35,7 +48,7 @@ if [ "$1" ]; then
         exit 1
     fi
 elif [ -f "$TARGET_FILE" ]; then
-    echo "󰯐 $(cat "$TARGET_FILE")"
+    echo "R: $(cat "$TARGET_FILE")"
 else
-    echo "󰯐 none"
+    echo "R: none"
 fi
