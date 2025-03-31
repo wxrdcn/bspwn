@@ -84,7 +84,7 @@ if [ "$color_prompt" = yes ]; then
   reset_color="$(tput sgr0)"
   red="$(tput setaf 160)"
  
-  bg_color='%{%K{#740000}%}'
+  bg_color='%{%K{#5d0606}%}'
   fg_color='%{%F{#ced4da}%}'
   #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
   end_color='%{%f%k%}'
@@ -297,7 +297,7 @@ alias img="w3m -o ext_image_viewer=0"
 alias bspwmrc=". ~/.config/bspwm/bspwmrc"
 alias virtualbox="virtualbox -style fusion %U"
 alias less="batcat -p --color=always"
-alias cal="ncal -bwA5"
+alias cal="ncal -bwyM"
 alias acs="apt-cache search"
 alias del="/bin/rm -rfv"
 alias which="which -a"
@@ -307,8 +307,20 @@ alias ydl="youtube-dl"
 alias python='python -W "ignore"'
 alias smbmap='smbmap --no-banner'
 alias verse="verse | tr -s ' '| tr -d '\n' | sed 's/^ //'"
+alias target='~/.config/polybar/_scripts/mytarget.sh'
+alias ctarget='~/.config/polybar/_scripts/mytarget.sh -c'
+
 
 # --- functions ---
+
+
+function smap(){
+  sudo nmap "$1" -sS -p- --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA tcp-all
+}
+
+function umap(){
+  sudo nmap "$1" -sU -F --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA udp-all
+}
 
 
 function ww() {
@@ -446,8 +458,9 @@ function xps(){
     else
         ip_Oaddress=$( grep --color=never -oP '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}' $1 | sort -u  )
         ports_Ofile=$( grep --color=never -oP '\d{1,5}/open' $1 | awk '{print $1}' FS="/" | xargs | tr " " "," )
-        echo -e "${graycolor}[${greencolor}+${graycolor}]${endcolor} command copied to clipboard, run:\nsudo nmap -sVC -p$ports_Ofile --min-rate=5000 -n -Pn $ip_Oaddress -oN targeted"
-        echo -e "sudo nmap -sVC -p$ports_Ofile --min-rate=5000 -n -Pn $ip_Oaddress -oN targeted" | tr -d '\n' | xclip -sel clip
+        command="sudo nmap -sVC -p$ports_Ofile --disable-arp-ping --min-rate=5000 -n -Pn $ip_Oaddress -oA targeted --stats-every=5s"
+        echo -e "[+] command copied to clipboard, run:\n$command"
+        echo -e "$command" | tr -d '\n' | xclip -sel clip
     fi
 }
 
@@ -507,6 +520,37 @@ function lock_screen() {
     i3lock -c 000000 -i ~/.config/i3lock/centered_stop.png
 }
 
+
+setg() {
+  if [ $# -ne 2 ]; then
+    echo "Usage: setg <variable> <value>"
+    return 1
+  fi
+  
+  # Add/update the variable in .zshrc
+  if grep -q "export $1=" ~/.zshrc; then
+    sed -i "s/export $1=.*/export $1=\"$2\"/" ~/.zshrc
+  else
+    echo "export $1=\"$2\"" >> ~/.zshrc
+  fi
+  
+  # Also update .bashrc if it exists
+  if [ -f ~/.bashrc ]; then
+    if grep -q "export $1=" ~/.bashrc; then
+      sed -i "s/export $1=.*/export $1=\"$2\"/" ~/.bashrc
+    else
+      echo "export $1=\"$2\"" >> ~/.bashrc
+    fi
+  fi
+  
+  # Make it available in current session
+  export $1="$2"
+  echo "Global variable $1 set to $2"
+}
+
+
+PROMPT_EOL_MARK=''
+
 # exports
 export PATH=$PATH:$HOME:/opt/bin:$HOME/.local/bin:/usr/bin/ruby3.0:$HOME/.go/bin:$HOME/.cargo/bin
 export PATH=$PATH:$HOME/.rvm/bin
@@ -516,3 +560,5 @@ export GEM_HOME="$HOME/.gems"
 export PATH="$HOME/.gems/bin:$PATH"
 export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
+export lport="80"
+export lhost="10.10.14.6"
