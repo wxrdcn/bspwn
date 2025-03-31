@@ -230,10 +230,10 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_STYLES[cursor-matchingbracket]=standout
         ZSH_HIGHLIGHT_STYLES[alias]=fg=magenta
         ZSH_HIGHLIGHT_REGEXP+=('sudo' bg=#c60505,fg=yellow,bold)
-        ZSH_HIGHLIGHT_REGEXP+=('\bsudo\b' bg=#c60505,fg=yellow,bold)
-        ZSH_HIGHLIGHT_REGEXP+=('\brm\b(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
-        ZSH_HIGHLIGHT_REGEXP+=('\bsudo\b\s+\brm\b(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
-        ZSH_HIGHLIGHT_REGEXP+=('\$\([^\)]*\brm\b[^\)]*\)|`[^`]*\brm\b[^`]*`' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('sudo' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('rm(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('sudo\s+rm(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
+        ZSH_HIGHLIGHT_REGEXP+=('\$\([^\)]*rm[^\)]*\)|`[^`]*rm[^`]*`' bg=#c60505,fg=yellow,bold)
   fi
 
 # ---
@@ -306,10 +306,11 @@ alias yp4="youtube-dl --format mp4  --output '%(title)s.%(ext)s'"
 alias ydl="youtube-dl"
 alias python='python -W "ignore"'
 alias smbmap='smbmap --no-banner'
-alias verse="verse | tr -s ' '| tr -d '\n' | sed 's/^ //'"
-alias target='~/.config/polybar/_scripts/mytarget.sh'
-alias ctarget='~/.config/polybar/_scripts/mytarget.sh -c'
-
+alias verse="verse | tr -s ' '| tr -d '
+' | sed 's/^ //'"
+alias target='setg RHOST'
+alias ctarget='echo "none" > ~/.current_target'
+alias hosts='cat /etc/hosts'
 
 # --- functions ---
 
@@ -321,7 +322,6 @@ function smap(){
 function umap(){
   sudo nmap "$1" -sU -F --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA udp-all
 }
-
 
 function ww() {
     # Declare options as a local array to avoid conflicts with outer scope
@@ -363,11 +363,16 @@ function ww() {
     echo -e "[+]Scanning $target..."
     echo -e "[+]Options: ${options[*]}"
     echo -e "[+]Results will be saved to:"
-    echo -e "\n----------------------\n"
-    echo -e "\tText:  $txt_file"
-    echo -e "\tXML:   $xml_file"
-    echo -e "\tJSON:  $json_file"
-    echo -e "\n----------------------\n\n"
+    echo -e "
+----------------------
+"
+    echo -e "	Text:  $txt_file"
+    echo -e "	XML:   $xml_file"
+    echo -e "	JSON:  $json_file"
+    echo -e "
+----------------------
+
+"
 
     # Run whatweb with the specified options and output formats
     whatweb -v "${options[@]}" --log-xml="$xml_file" --log-json="$json_file" "$target" | tee "$txt_file"
@@ -412,20 +417,21 @@ function w64(){
     export WINEPREFIX=~/.wine
 }
 
-function wttr(){
-    curl wttr.in
-}
 
 function mkt() {
     # Combine all arguments into a single folder name
     local fname="${(j: :)@}"
 
     if [[ -z "$fname" ]]; then
-        echo >&2 "Provide a folder name\nusage: mkt <folder name>"
+        echo >&2 "Provide a folder name
+usage: mkt <folder name>"
         return 1
     fi
 
-    printf "\n\033[1;34m[ %s/%s ]\033[0m\n\n" "$PWD" "$fname"
+    printf "
+[1;34m[ %s/%s ][0m
+
+" "$PWD" "$fname"
 
     # Create directory structure
     if ! mkdir -p "$fname"/{recon/{nmap/{tcp,udp},tcp,udp},loot,xploit/{bx,px}/{cve,script,payload,misc}} 2>/dev/null; then
@@ -441,33 +447,30 @@ function mkt() {
 
     ls -ld "$fname"
 
-    # Enter directory and list contents
-#    if cd "$fname" 2>/dev/null; then
-#        ls -lha
-#    else
-#        echo >&2 "Error: Failed to enter directory '$fname'"
-#        return 4
-#    fi
 }
 
 
 function xps(){
     if [ -z "$1" ]
     then
-        echo "Provide a file\nusage: xps <filename>"
+        echo "Provide a file
+usage: xps <filename>"
     else
         ip_Oaddress=$( grep --color=never -oP '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}' $1 | sort -u  )
         ports_Ofile=$( grep --color=never -oP '\d{1,5}/open' $1 | awk '{print $1}' FS="/" | xargs | tr " " "," )
         command="sudo nmap -sVC -p$ports_Ofile --disable-arp-ping --min-rate=5000 -n -Pn $ip_Oaddress -oA targeted --stats-every=5s"
-        echo -e "[+] command copied to clipboard, run:\n$command"
-        echo -e "$command" | tr -d '\n' | xclip -sel clip
+        echo -e "[+] command copied to clipboard, run:
+$command"
+        echo -e "$command" | tr -d '
+' | xclip -sel clip
     fi
 }
 
 function mac(){
     find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -printf "%P: " -execdir cat {}/address \; \
         | sort -n -r \
-        | awk '{printf "\033[01;32m%s\033[0m - \033[01;31m%s\033[0m\n",$1,$2 }'
+        | awk '{printf "[01;32m%s[0m - [01;31m%s[0m
+",$1,$2 }'
 }
 
 function macc(){
@@ -520,35 +523,86 @@ function lock_screen() {
     i3lock -c 000000 -i ~/.config/i3lock/centered_stop.png
 }
 
+show_options() {
+  local allowed=("LHOST" "LPORT" "RHOST" "RPORT" "SSL" "PROTO")
+  echo "┌── Current Configuration Options ──"
+  for var in "${allowed[@]}"; do
+    if [[ -v $var ]]; then
+      printf "│ [1;36m%-6s[0m ▸ %s
+" "$var" "${(P)var}"
+    else
+      printf "│ [1;31m%-6s[0m ▸ %s
+" "$var" "(not set)"
+    fi
+  done
+  echo "└───────────────────────────────────"
+}
 
 setg() {
   if [ $# -ne 2 ]; then
     echo "Usage: setg <variable> <value>"
     return 1
   fi
-  
-  # Add/update the variable in .zshrc
-  if grep -q "export $1=" ~/.zshrc; then
-    sed -i "s/export $1=.*/export $1=\"$2\"/" ~/.zshrc
-  else
-    echo "export $1=\"$2\"" >> ~/.zshrc
+
+  # Define allowed variables
+  local allowed=("LHOST" "LPORT" "RPORT" "RHOST" "SSL" "PROTO")
+  local var_name="${1:u}"  # Convert input to uppercase
+
+  # Check if variable is allowed
+  if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
+    echo "Error: '${var_name}' is not a configurable variable"
+    echo "Allowed variables: ${allowed[@]}"
+    return 1
   fi
-  
-  # Also update .bashrc if it exists
-  if [ -f ~/.bashrc ]; then
-    if grep -q "export $1=" ~/.bashrc; then
-      sed -i "s/export $1=.*/export $1=\"$2\"/" ~/.bashrc
-    else
-      echo "export $1=\"$2\"" >> ~/.bashrc
+
+  # Additional validation for RHOST
+  if [[ $var_name == "RHOST" ]]; then
+    if [[ "$2" != "none" ]] && ! [[ "$2" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      echo "Error: Invalid IP address format for RHOST"
+      return 1
     fi
   fi
-  
-  # Make it available in current session
-  export $1="$2"
-  echo "Global variable $1 set to $2"
+
+  # Get the actual file path (resolving symlink)
+  local zshrc_actual=$(readlink -f ~/.zshrc)
+
+  # Create a temporary file
+  local temp_file=$(mktemp)
+
+  # Check if the variable already exists in the file
+  local var_exists=0
+
+  # Process the file line by line and update the variable if it exists
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^export\ ${var_name}= ]]; then
+      echo "export ${var_name}=\"$2\"" >> "$temp_file"
+      var_exists=1
+    else
+      echo "$line" >> "$temp_file"
+    fi
+  done < "$zshrc_actual"
+
+  # If the variable doesn't exist, append it to the end of the file
+  if [[ $var_exists -eq 0 ]]; then
+    echo "export ${var_name}=\"$2\"" >> "$temp_file"
+  fi
+
+  # Replace the original file with the new content
+  cat "$temp_file" > "$zshrc_actual"
+  rm "$temp_file"
+
+  # Update current session
+  export ${var_name}="$2"
+  echo "Global variable ${var_name} set to $2"
+
+  # Sync RHOST to .current_target
+  if [[ $var_name == "RHOST" ]]; then
+    echo "$2" > ~/.current_target
+    echo "Updated ~/.current_target with RHOST value"
+  fi
 }
 
-
+  
 PROMPT_EOL_MARK=''
 
 # exports
@@ -560,5 +614,5 @@ export GEM_HOME="$HOME/.gems"
 export PATH="$HOME/.gems/bin:$PATH"
 export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
-export lport="80"
-export lhost="10.10.14.6"
+
+### capture the flag variables ###
