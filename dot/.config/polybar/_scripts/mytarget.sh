@@ -48,7 +48,7 @@ if [ "$1" ]; then
         exit 1
     fi
 elif [ -f "$TARGET_FILE" ]; then
-    echo "R: $(cat "$TARGET_FILE")"
+    echo "R:$(cat "$TARGET_FILE")"
 else
-    echo "R: none"
+    echo "R:none"
 fi

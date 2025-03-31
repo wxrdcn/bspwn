@@ -5,7 +5,7 @@ get_ipaddr() {
     for iface in "${interfaces[@]}"; do
         if ip link show "$iface" &>/dev/null; then
             local ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
-            [[ -n $ipaddr ]] && { echo "L: $ipaddr"; return; }
+            [[ -n $ipaddr ]] && { echo "L:$ipaddr"; return; }
         fi
     done
     echo "offline"
