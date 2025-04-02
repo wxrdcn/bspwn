@@ -306,14 +306,23 @@ alias yp4="youtube-dl --format mp4  --output '%(title)s.%(ext)s'"
 alias ydl="youtube-dl"
 alias python='python -W "ignore"'
 alias smbmap='smbmap --no-banner'
-alias verse="verse | tr -s ' '| tr -d '
-' | sed 's/^ //'"
+alias verse="verse | tr -s ' '| tr -d '' | sed 's/^ //'"
 alias target='setg RHOST'
-alias ctarget='echo "none" > ~/.current_target'
+alias ctarget='unsetg RHOST'
 alias hosts='cat /etc/hosts'
-
+alias apt='sudo apt'
+alias apt-get='sudo apt-get'
+alias btop='sudo btop'
+alias htop='sudo htop'
+alias top='sudo top'
+alias show-options="show_options"
 # --- functions ---
 
+function clear_all(){
+  for i in "LHOST" "LPORT" "RHOST" "RPORT" "SSL" "PROTO"; do
+    unsetg "$i";
+  done
+}
 
 function smap(){
   sudo nmap "$1" -sS -p- --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA tcp-all
@@ -602,6 +611,53 @@ setg() {
   fi
 }
 
+
+unsetg() {
+  if [ $# -ne 1 ]; then
+    echo "Usage: unsetg <variable>"
+    return 1
+  fi
+
+  # Define allowed variables
+  local allowed=("LHOST" "LPORT" "RPORT" "RHOST" "SSL" "PROTO")
+  local var_name="${1:u}"  # Convert input to uppercase
+
+  # Check if variable is allowed
+  if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
+    echo "Error: '${var_name}' is not a configurable variable"
+    echo "Allowed variables: ${allowed[@]}"
+    return 1
+  fi
+
+  # Get the actual file path (resolving symlink)
+  local zshrc_actual=$(readlink -f ~/.zshrc)
+
+  # Create a temporary file
+  local temp_file=$(mktemp)
+
+  # Process the file line by line, skipping the target variable
+  while IFS= read -r line; do
+    if [[ ! "$line" =~ ^export\ ${var_name}= ]]; then
+      echo "$line" >> "$temp_file"
+    fi
+  done < "$zshrc_actual"
+
+  # Replace the original file with the new content
+  cat "$temp_file" > "$zshrc_actual"
+  rm "$temp_file"
+
+  # Unset variable in the current session
+  unset "$var_name"
+  echo "[+] Removed variable \"${var_name}\""
+
+  # Special handling for RHOST: clear .current_target
+  if [[ $var_name == "RHOST" ]]; then
+    echo "no target" > ~/.current_target
+    echo "Cleared ~/.current_target"
+  fi
+
+  return 0
+}
   
 PROMPT_EOL_MARK=''
 
