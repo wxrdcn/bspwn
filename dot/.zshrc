@@ -79,106 +79,141 @@ fi
 
 
 if [ "$color_prompt" = yes ]; then
-  # --- Prompt Configuration ---
-  # Define ANSI color codes using tput
-  reset_color="$(tput sgr0)"
-  red="$(tput setaf 160)"
- 
-  bg_color='%{%K{#5d0606}%}'
-  fg_color='%{%F{#ced4da}%}'
-  #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
-  end_color='%{%f%k%}'
+    # --- Prompt Configuration ---
+    # Define ANSI color codes using tput
+    reset_color="$(tput sgr0)"
+    red="$(tput setaf 160)"
+
+    bg_color='%{%K{#5d0606}%}'
+    fg_color='%{%F{#ced4da}%}'
+    #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
+    end_color='%{%f%k%}'
 
 
-  # Initialize prompt style
-  PROMPT_STYLE=detailed
+    # Initialize prompt style
+    PROMPT_STYLE=detailed
 
-  # IP detection logic
-  get_ipaddr() {
-      local interfaces=("tun0" "tap0" "eth0" "wlan0" "wlan1")
-      for iface in "${interfaces[@]}"; do
-          if ip link show "$iface" &>/dev/null; then
-              local ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
-              [[ -n $ipaddr ]] && { echo $ipaddr; return }
-          fi
-      done
-      echo "offline"
-  }
+    # IP detection logic
+    get_ipaddr() {
+        local interfaces=("tun0" "tap0" "eth0" "wlan0" "wlan1")
+        for iface in "${interfaces[@]}"; do
+            if ip link show "$iface" &>/dev/null; then
+                local ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
+                [[ -n $ipaddr ]] && { echo $ipaddr; return }
+            fi
+        done
+        echo "offline"
+    }
 
-  update_prompt() {
-      case $PROMPT_STYLE in
-          detailed)
-              local ipaddr=$(get_ipaddr)
-              PROMPT="${bg_color}${fg_color}[ %nX$ipaddr %~ ]\$${end_color} "
-              ;;
-          ipdir)
-              local ipaddr=$(get_ipaddr)
-              PROMPT="${bg_color}${fg_color}[ $ipaddr %~ ]\$${end_color} "
-              ;;
-          dir)
-              PROMPT="${bg_color}${fg_color}[ %~ ]\$${end_color} "
-              ;;
-          minimal)
-              PROMPT="${bg_color}${fg_color}\$${end_color} "
-              ;;
-      esac
-  }
+    # Add to your .zshrc
+    setopt prompt_subst
 
-  # Toggle prompt styles
-  toggle_prompt() {
-      case $PROMPT_STYLE in
-          detailed) PROMPT_STYLE=ipdir ;;
-          ipdir) PROMPT_STYLE=dir ;;
-          dir) PROMPT_STYLE=minimal ;;
-          *) PROMPT_STYLE=detailed ;;
-      esac
-      update_prompt
-      zle reset-prompt
-  }
-  
-  zle -N toggle_prompt
-  bindkey '^P' toggle_prompt
+    # Function to shorten the path
+    function shorten_path() {
+        local path=${PWD/#$HOME/\~}  # Replace HOME with ~
+        local elements=("${(@s:/:)path}")  # Split into array using '/'
+        local shortened=""
 
-  # Toggle prompt styles in reverse order
-  toggle_prompt_reverse() {
-      case $PROMPT_STYLE in
-          dir) PROMPT_STYLE=ipdir ;;
-          ipdir) PROMPT_STYLE=detailed ;;
-          detailed) PROMPT_STYLE=minimal ;;
-          *) PROMPT_STYLE=dir ;; # Fallback to `dir` if PROMPT_STYLE is not set
-      esac
-      update_prompt
-      zle reset-prompt
-  }
-  zle -N toggle_prompt_reverse
-  bindkey '^[^P' toggle_prompt_reverse
+        if [[ "$path" == "~" ]]; then
+            echo "~"
+            return
+        fi
 
-  # --- Transient Prompt ---
-  zle-line-init() {
-      emulate -L zsh
-      [[ $CONTEXT == start ]] || return 0
+        # Handle home directory case
+        if [[ "$path" == "~/"* ]]; then
+            shortened="~"
+            elements=(${elements[@]:1})  # Remove '~' from elements
+        fi
 
-      local ret
-      while true; do
-          zle .recursive-edit
-          ret=$?
-          [[ $ret == 0 && $KEYS == $'\4' ]] || break
-          [[ -o ignore_eof ]] || exit 0
-      done
+        local num_elements=${#elements[@]}
+        for ((i=1; i < num_elements; i++)); do
+            shortened+="/${elements[i][1]}"  # Take first character of each component
+        done
 
-      local saved_prompt=$PROMPT
-      PROMPT='${bg_color}${fg_color}\$${end_color} '
-      zle .reset-prompt
-      PROMPT=$saved_prompt
+        if (( num_elements > 0 )); then
+            shortened+="/${elements[-1]}"  # Keep the last component full
+        fi
 
-      (( ret )) && zle .send-break || zle .accept-line
-      return ret
-  }
-  zle -N zle-line-init
+        echo "${shortened%/}"  # Remove trailing slash if any
+    }
 
-  # --- Final setup ---
-  autoload -Uz add-zsh-hook
-  add-zsh-hook precmd update_prompt
+    # Update your update_prompt function
+    update_prompt() {
+        case $PROMPT_STYLE in
+            detailed)
+                local ipaddr=$(get_ipaddr)
+                PROMPT="${bg_color}${fg_color}[ %nX$ipaddr \$(shorten_path) ]\$${end_color} "
+                ;;
+            ipdir)
+                local ipaddr=$(get_ipaddr)
+                PROMPT="${bg_color}${fg_color}[ $ipaddr \$(shorten_path) ]\$${end_color} "
+                ;;
+            dir)
+                PROMPT="${bg_color}${fg_color}[ \$(shorten_path) ]\$${end_color} "
+                ;;
+            minimal)
+                PROMPT="${bg_color}${fg_color}\$${end_color} "
+                ;;
+        esac
+    }
+
+
+
+    # Toggle prompt styles
+    toggle_prompt() {
+        case $PROMPT_STYLE in
+            detailed) PROMPT_STYLE=ipdir ;;
+            ipdir) PROMPT_STYLE=dir ;;
+            dir) PROMPT_STYLE=minimal ;;
+            *) PROMPT_STYLE=detailed ;;
+        esac
+        update_prompt
+        zle reset-prompt
+    }
+
+    zle -N toggle_prompt
+    bindkey '^P' toggle_prompt
+
+    # Toggle prompt styles in reverse order
+    toggle_prompt_reverse() {
+        case $PROMPT_STYLE in
+            dir) PROMPT_STYLE=ipdir ;;
+            ipdir) PROMPT_STYLE=detailed ;;
+            detailed) PROMPT_STYLE=minimal ;;
+            *) PROMPT_STYLE=dir ;; # Fallback to `dir` if PROMPT_STYLE is not set
+        esac
+        update_prompt
+        zle reset-prompt
+    }
+    zle -N toggle_prompt_reverse
+    bindkey '^[^P' toggle_prompt_reverse
+
+    # --- Transient Prompt ---
+    zle-line-init() {
+        emulate -L zsh
+        [[ $CONTEXT == start ]] || return 0
+
+        local ret
+        while true; do
+            zle .recursive-edit
+            ret=$?
+            [[ $ret == 0 && $KEYS == $'\4' ]] || break
+            [[ -o ignore_eof ]] || exit 0
+        done
+
+        local saved_prompt=$PROMPT
+        PROMPT='${bg_color}${fg_color}\$${end_color} '
+        zle .reset-prompt
+        PROMPT=$saved_prompt
+
+        (( ret )) && zle .send-break || zle .accept-line
+        return ret
+    }
+    zle -N zle-line-init
+
+    # --- Final setup ---
+    autoload -Uz add-zsh-hook
+    add-zsh-hook precmd update_prompt
 
     # --- Syntax-highlighting ---
     # options fg,bg,underline,bold
@@ -234,9 +269,9 @@ if [ "$color_prompt" = yes ]; then
         ZSH_HIGHLIGHT_REGEXP+=('rm(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
         ZSH_HIGHLIGHT_REGEXP+=('sudo\s+rm(\s+-[^\s]+|\s+--[^\s]+)*' bg=#c60505,fg=yellow,bold)
         ZSH_HIGHLIGHT_REGEXP+=('\$\([^\)]*rm[^\)]*\)|`[^`]*rm[^`]*`' bg=#c60505,fg=yellow,bold)
-  fi
+    fi
 
-# ---
+    # ---
 fi
 # --- Auto suggestions ---
 if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
@@ -319,17 +354,17 @@ alias show-options="show_options"
 # --- functions ---
 
 function clear_all(){
-  for i in "LHOST" "LPORT" "RHOST" "RPORT" "SSL" "PROTO"; do
-    unsetg "$i";
-  done
+    for i in "LHOST" "LPORT" "RHOST" "RPORT" "SSL" "PROTO"; do
+        unsetg "$i";
+    done
 }
 
 function smap(){
-  sudo nmap "$1" -sS -p- --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA tcp-all
+    sudo nmap -sS -p- --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA tcp-all "$1"
 }
 
 function umap(){
-  sudo nmap "$1" -sU -F --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA udp-all
+    sudo nmap -sU -F --reason -n -Pn --min-rate=5000 --disable-arp-ping --stats-every=5s -oA udp-all "$1"
 }
 
 function ww() {
@@ -374,14 +409,14 @@ function ww() {
     echo -e "[+]Results will be saved to:"
     echo -e "
 ----------------------
-"
+    "
     echo -e "	Text:  $txt_file"
     echo -e "	XML:   $xml_file"
     echo -e "	JSON:  $json_file"
     echo -e "
 ----------------------
 
-"
+    "
 
     # Run whatweb with the specified options and output formats
     whatweb -v "${options[@]}" --log-xml="$xml_file" --log-json="$json_file" "$target" | tee "$txt_file"
@@ -392,12 +427,12 @@ function ww() {
 
 # Open PDFs with Zathura (detached from terminal)
 function zat() {
-  zathura "$@" &!
+    zathura "$@" &!
 }
 
 # Open documents with Atril (detached from terminal)
 function atril() {
-  command atril "$@" &!
+    command atril "$@" &!
 }
 
 function java11(){
@@ -433,7 +468,7 @@ function mkt() {
 
     if [[ -z "$fname" ]]; then
         echo >&2 "Provide a folder name
-usage: mkt <folder name>"
+        usage: mkt <folder name>"
         return 1
     fi
 
@@ -658,7 +693,7 @@ unsetg() {
 
   return 0
 }
-  
+
 PROMPT_EOL_MARK=''
 
 # exports
