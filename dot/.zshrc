@@ -108,10 +108,12 @@ if [ "$color_prompt" = yes ]; then
     # Add to your .zshrc
     setopt prompt_subst
 
-    # Function to shorten the path
     function shorten_path() {
-        local path=${PWD/#$HOME/\~}  # Replace HOME with ~
-        local elements=("${(@s:/:)path}")  # Split into array using '/'
+        local path=${PWD/#$HOME/\~}
+        local is_absolute=0
+        [[ "$path" == /* ]] && is_absolute=1  # Check if path is absolute
+        local elements=("${(@s:/:)path}")
+        elements=("${(@)elements:#}")  # Remove empty elements
         local shortened=""
 
         if [[ "$path" == "~" ]]; then
@@ -119,22 +121,31 @@ if [ "$color_prompt" = yes ]; then
             return
         fi
 
-        # Handle home directory case
+        # Handle home directory (~/...) case
         if [[ "$path" == "~/"* ]]; then
-            shortened="~"
-            elements=(${elements[@]:1})  # Remove '~' from elements
+            shortened="~/"
+            elements=("${elements[@]:1}")  # Remove '~' from elements
+        elif (( is_absolute )); then
+            # Only add initial slash for absolute paths
+            shortened="/"
         fi
 
         local num_elements=${#elements[@]}
+
+        # Process all elements except the last one (if any)
         for ((i=1; i < num_elements; i++)); do
-            shortened+="/${elements[i][1]}"  # Take first character of each component
+            shortened+="${elements[i][1]}/"  # Shorten parent dirs to first char followed by slash
         done
 
+        # Append the full last directory component without an extra slash
         if (( num_elements > 0 )); then
-            shortened+="/${elements[-1]}"  # Keep the last component full
+            shortened+="${elements[-1]}"
         fi
 
-        echo "${shortened%/}"  # Remove trailing slash if any
+        # Handle root directory edge case
+        [[ "$shortened" == "/" ]] && echo "/" && return
+
+        echo "${shortened}"
     }
 
     # Update your update_prompt function
@@ -707,3 +718,4 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
 
 ### capture the flag variables ###
+export RHOST="10.129.121.154"
