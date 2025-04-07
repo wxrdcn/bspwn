@@ -324,7 +324,7 @@ alias ls='lsd --icon never --group-directories-first'
 alias ll='ls -lh'
 alias lv='\ls -v1 '
 alias la='ls -a1'
-alias l='ls -1'
+alias l='ls -1v'
 alias lt='ls -1t'
 alias lla='ls -lha'
 alias lra='ls -lRa'
@@ -362,6 +362,8 @@ alias btop='sudo btop'
 alias htop='sudo htop'
 alias top='sudo top'
 alias show-options="show_options"
+#alias rsync="rsync -Phavzc"
+
 # --- functions ---
 
 function clear_all(){
