@@ -362,7 +362,7 @@ alias btop='sudo btop'
 alias htop='sudo htop'
 alias top='sudo top'
 alias show-options="show_options"
-#alias rsync="rsync -Phavzc"
+alias rsync="rsync -Phavzc"
 
 # --- functions ---
 
