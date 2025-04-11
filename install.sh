@@ -62,6 +62,32 @@ link_configs() {
     done' bash {} +
 }
 
+xfcepwr() {
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/battery-button-action" -s "3"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/brightness-level-on-ac" -s "50"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/brightness-level-on-battery" -s "25"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/brightness-on-ac" -s "120"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/brightness-on-battery" -s "60"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/brightness-switch" -s "0"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/brightness-switch-restore-on-exit" -s "1"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/critical-power-level" -s "20"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/dpms-on-ac-off" -s "10"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/dpms-on-ac-sleep" -s "6"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/dpms-on-battery-sleep" -s "5"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/general-notification" -s "true"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/hibernate-button-action" -s "3"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/inactivity-on-ac" -s "5"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/inactivity-on-battery" -s "5"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/lid-action-on-ac" -s "1"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/lid-action-on-battery" -s "1"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/lock-screen-suspend-hibernate" -s "true"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/power-button-action" -s "3"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/presentation-mode" -s "true"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/show-panel-label" -s "0"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/show-tray-icon" -s "true"
+  xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/sleep-button-action" -s "3"
+}
+
 # Enhanced package installation
 install_packages() {
     local required_packages=(
@@ -161,7 +187,7 @@ install_nvchad() {
 
 # Parse command-line arguments and execute corresponding functions
 parse_arguments() {
-    local full=0 pkg=0 config=0 nvim=0 nvchad=0 fonts=0 theme=0 obsidian=0
+    local full=0 pkg=0 config=0 nvim=0 nvchad=0 fonts=0 theme=0 obsidian=0 xfcepwr=0
     local has_options=0
 
     while [[ $# -gt 0 ]]; do
@@ -174,6 +200,7 @@ parse_arguments() {
             -fonts)   fonts=1; has_options=1 ;;
             -theme)   theme=1; has_options=1 ;;
             -obsidian) obsidian=1; has_options=1 ;;
+            -xfcepwr) xfcepwr=1; has_options=1 ;;
             *) error_exit "Unknown option: $1" ;;
         esac
         shift
@@ -191,6 +218,7 @@ parse_arguments() {
         echo -e "\t-fonts     Install fonts"
         echo -e "\t-theme     Install GTK theme and icons"
         echo -e "\t-obsidian  Install Obsidian"
+        echo -e "\t-xfcepwr   Configure XFCE power manager settings"
         exit 1
     fi
 
@@ -204,6 +232,7 @@ parse_arguments() {
         install_obsidian
         install_fonts
         link_configs
+        xfcepwr
         log "Full installation completed!"
         log "Backup available at: $BACKUP_DIR"
         return 0
@@ -223,9 +252,10 @@ parse_arguments() {
     [[ $nvim -eq 1 ]]    && install_neovim
     [[ $obsidian -eq 1 ]] && install_obsidian
     [[ $fonts -eq 1 ]]   && install_fonts
-    [[ $config -eq 1 ]]  && link_configs
+    [[ $config -eq 1 ]]  && link_configs && xfcepwr
     [[ $theme -eq 1 ]]   && install_gtk_theme
     [[ $nvchad -eq 1 ]]  && install_nvchad
+    [[ $xfcepwr -eq 1 ]] && xfcepwr
 
     log "Selected operations completed."
 }
