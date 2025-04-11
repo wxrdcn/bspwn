@@ -73,25 +73,62 @@ super + x
 
 #brightness volume microphone etc...
 
-XF86AudioRaiseVolume
-        pamixer -i 5
+#XF86AudioRaiseVolume
+#  pamixer -i 5
 
-XF86AudioLowerVolume
-	pamixer -d 5	
+#XF86AudioLowerVolume
+#	pamixer -d 5	
 
-XF86AudioMute
-	pamixer -t
+#XF86AudioMute
+#	pamixer -t
 
-XF86MonBrightnessUp
-         brightnessctl s +10%
+#XF86MonBrightnessUp
+#         brightnessctl s +10%
 
-XF86MonBrightnessDown
-         brightnessctl s 10%-
+#XF86MonBrightnessDown
+#         brightnessctl s 10%-
 
 XF86AudioMicMute
-
 	$HOME/.config/sxhkd/scripts/micvol.sh toggle
 #	pactl set-source-mute 1 toggle
+
+
+XF86AudioRaiseVolume
+  pamixer -i 5 && \
+  VOL=$(pamixer --get-volume) && \
+  notify-send -u low -h string:x-canonical-private-synchronous:volume "Volume" "Volume: $VOL%" -h int:value:$VOL -t 1000
+
+XF86AudioLowerVolume
+  pamixer -d 5 && \
+  VOL=$(pamixer --get-volume) && \
+  notify-send -u low -h string:x-canonical-private-synchronous:volume "Volume" "Volume: $VOL%" -h int:value:$VOL -t 1000
+
+XF86AudioMute
+  pamixer -t && \
+  if [ $(pamixer --get-mute) = "true" ]; then \
+    notify-send -u low -h string:x-canonical-private-synchronous:volume "Volume" "Muted" -t 1000; \
+  else \
+    VOL=$(pamixer --get-volume) && \
+    notify-send -u low -h string:x-canonical-private-synchronous:volume "Volume" "Volume: $VOL%" -h int:value:$VOL -t 1000; \
+  fi
+
+XF86MonBrightnessUp
+  brightnessctl s +10% && \
+  BRIGHT=$(brightnessctl g) && \
+  MAX=$(brightnessctl m) && \
+  PERCENT=$((BRIGHT * 100 / MAX)) && \
+  notify-send -u low -h string:x-canonical-private-synchronous:brightness "Brightness" "Brightness: $PERCENT%" -h int:value:$PERCENT -t 1000
+
+XF86MonBrightnessDown
+  brightnessctl s 10%- && \
+  BRIGHT=$(brightnessctl g) && \
+  MAX=$(brightnessctl m) && \
+  PERCENT=$((BRIGHT * 100 / MAX)) && \
+  notify-send -u low -h string:x-canonical-private-synchronous:brightness "Brightness" "Brightness: $PERCENT%" -h int:value:$PERCENT -t 1000
+
+
+
+
 
 #============BSPWM HOTKEYS==============
 
