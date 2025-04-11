@@ -113,11 +113,11 @@ install_packages() {
         apg pwgen
 
         # Notifications & Appearance
-        dmenu dunst libnotify-bin lxappearance pavucontrol pamixer
+        dmenu dunst libnotify-bin lxappearance pavucontrol pamixer pasystray network-manager network-manager-gnome
 
         # Miscellaneous Utilities
         brightnessctl calc chrony ncal ranger redshift translate-shell zathura xcalib wmctrl
-      
+        
         # drive backup
         rclone
 

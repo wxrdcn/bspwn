@@ -78,7 +78,7 @@ restart_process() {
 }
 
 # define list of processes
-process_list=( "kdeconnectd" "lxpolkit" "xfce4-clipman" "nm-applet" "xfce4-screensaver" "xfce4-power-manager" "dunst" "sxhkd" "polybar")
+process_list=( "kdeconnectd" "kdeconnect-indicator"  "lxpolkit" "pasystray" "xfce4-clipman" "nm-applet" "xfce4-screensaver" "xfce4-power-manager" "dunst" "sxhkd" "polybar")
 for process in "${process_list[@]}"; do
   restart_process $process 
 done
