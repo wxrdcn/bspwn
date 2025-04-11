@@ -60,7 +60,11 @@ link_configs() {
             base_dir="${dir##*/}"
             ln -sfnv "$dir" "$HOME/.config/$base_dir"
     done' bash {} +
-}
+    
+    # vim
+    cp -rv "$CONFIG_DIR/.vim" "$HOME"
+
+  }
 
 xfcepwr() {
   xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/battery-button-action" -s "3"
@@ -156,8 +160,9 @@ install_obsidian(){
 }
 
 install_gtk_theme(){
-    sudo cp -rv "$CONFIG_DIR/usr/share/themes" "/usr/share/themes"
-    sudo cp -rv "$CONFIG_DIR/usr/share/icons" "/usr/share/icons"
+    mkdir -p "$HOME/.local/share"
+    sudo cp -rv "$CONFIG_DIR/theme/themes" "$HOME/.local/share/themes"
+    sudo cp -rv "$CONFIG_DIR/theme/icons" "$HOME/.local/share/icons"
 }
 
 install_fonts() {
