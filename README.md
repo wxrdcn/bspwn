@@ -12,3 +12,9 @@ $ bash autocolor.sh
 [+] Usage: autocolor <first_color> <second_color>
 	Example: autocolor "#FF0000" "#00FF00"
 ```
+
+run the xfce/power-manager-settings.sh to enable suspend on lid close and such
+
+```bash
+$ bash xfce/power-manager-settings.sh
+```
