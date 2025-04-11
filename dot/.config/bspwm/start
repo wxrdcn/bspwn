@@ -15,7 +15,27 @@
 #hsetroot -root -solid "#111111"
 
 # default dynamic
-hsetroot -solid "#A90A0A" -center "$HOME/.config/bspwm/_img/bg.png" 
+
+#feh --bg-fill ~/Pictures/wallpapers/x.png
+#hsetroot -solid "#A90A0A" -center "$HOME/.config/bspwm/_img/bg.png" 
+
+# Custom wallpaper path
+wallpaper="$HOME/Pictures/wallpapers/x.png"
+# Default background image path
+default_bg="$HOME/.config/bspwm/_img/bg.png"
+# Check if custom wallpaper exists
+if [ -f "$wallpaper" ]; then
+    feh --bg-fill "$wallpaper"
+else
+    # Check if default background image exists
+    if [ -f "$default_bg" ]; then
+        hsetroot -solid "#A90A0A" -center "$default_bg"
+    else
+        # Fallback to powderblue color
+        hsetroot -solid "#B0E0E6"
+    fi
+fi
+
 
 
 ### Mouse and Touchpad Settings

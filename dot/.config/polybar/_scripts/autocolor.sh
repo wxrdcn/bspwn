@@ -42,11 +42,11 @@ fi
 
 # Replace first color lines
 sed -i "s|^primary = #\([0-9A-Fa-f]\{6\}\)$|primary = $FIRST_COLOR|" "$CONFIG_DIR/polybar/config.ini"
-sed -i "s|label-mounted = %{F#\([0-9A-Fa-f]\{6\}\)}%mountpoint%%{F-} %percentage_free%%|label-mounted = %{F$FIRST_COLOR}%mountpoint%%{F-} %percentage_free%%|" "$CONFIG_DIR/polybar/config.ini"
-sed -i "s|date = %d/%m/%y %{F#\([0-9A-Fa-f]\{6\}\)} X %{F-} %I:%M:%S|date = %d/%m/%y %{F$FIRST_COLOR} X %{F-} %I:%M:%S|" "$CONFIG_DIR/polybar/config.ini"
-sed -i "s|label = %{F#\([0-9A-Fa-f]\{6\}\)}BKL%{F-}%percentage:4:3%%|label = %{F$FIRST_COLOR}BKL%{F-}%percentage:4:3%%|" "$CONFIG_DIR/polybar/config.ini"
+sed -i "s|label-mounted = %{F#\([0-9A-Fa-f]\{6\}\)}|label-mounted = %{F$FIRST_COLOR}|" "$CONFIG_DIR/polybar/config.ini"
+sed -i "s|date = %d/%m/%y %{F#\([0-9A-Fa-f]\{6\}\)} %a %{F-} %I:%M:%S|date = %d/%m/%y %{F$FIRST_COLOR} %a %{F-} %I:%M:%S|" "$CONFIG_DIR/polybar/config.ini"
+sed -i "s|label = %{F#\([0-9A-Fa-f]\{6\}\)}|label = %{F$FIRST_COLOR}|" "$CONFIG_DIR/polybar/config.ini"
 sed -i "s|^active_tab_foreground   #\([0-9A-Fa-f]\{6\}\)$|active_tab_foreground   $FIRST_COLOR|" "$CONFIG_DIR/kitty/colors.conf"
-sed -i "s|hsetroot -solid \"#\([0-9A-Fa-f]\{6\}\)\" -center \"\$HOME/.config/bspwm/_img/kali.png\"|hsetroot -solid \"$FIRST_COLOR\" -center \"\$HOME/.config/bspwm/_img/kali.png\"|" "$CONFIG_DIR/bspwm/start"
+sed -i "s|hsetroot -solid \"#\([0-9A-Fa-f]\{6\}\)\" -center \"\$default_bg\"|hsetroot -solid \"$FIRST_COLOR\" -center \"\$default_bg\"|" "$CONFIG_DIR/bspwm/start"
 sed -i "s|bspc config focused_border_color \"#\([0-9A-Fa-f]\{6\}\)\"|bspc config focused_border_color \"$FIRST_COLOR\"|" "$CONFIG_DIR/bspwm/bspwmrc"
 
 # Replace second color lines
@@ -59,6 +59,8 @@ sed -i "s|^cursor #\([0-9A-Fa-f]\{6\}\)$|cursor $SECOND_COLOR|" "$CONFIG_DIR/kit
 # Replace third color lines
 sed -i "s|bg_color='%{%K{#\([0-9A-Fa-f]\{6\}\)}%}'|bg_color='%{%K{$THIRD_COLOR}%}'|" "$HOME/.zshrc"
 
+
+# Completed message
 echo "Colors updated successfully!"
 echo "First color ($FIRST_COLOR), Second color ($SECOND_COLOR), and Third color ($THIRD_COLOR) applied."
 
