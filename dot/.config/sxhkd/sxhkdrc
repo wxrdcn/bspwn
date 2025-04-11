@@ -13,16 +13,29 @@ super + Return
 
 # program launcher
 super + d
-	rofi -show drun -theme $HOME/.config/rofi/launcher.rasi
+	rofi -show drun -theme "$HOME/.config/rofi/launcher.rasi"
 	#dmenu_run
 
 #switch between window
 super + Tab
-	rofi -show window -theme $HOME/.config/rofi/launcher.rasi
+	rofi -show window -theme "$HOME/.config/rofi/launcher.rasi"
 
-#reload sxhkd
+# Reload sxhkd (with status checking)
 alt + shift + Escape
-        pkill -USR1 -x sxhkd ; sleep 1 ; sxhkd
+# pkill -USR1 -x sxhkd ; sleep 1 ; sxhkd
+    if pkill -USR1 -x sxhkd 2>/dev/null; then
+        notify-send "sxhkd" "Configuration reloaded!"
+    else
+        killall sxhkd 2>/dev/null
+        sxhkd &
+        if pgrep -x sxhkd >/dev/null; then
+            notify-send "sxhkd" "Full restart completed!"
+        else
+            notify-send "sxhkd" "RESTART FAILED!" -u critical
+            # Emergency fallback - try starting once more
+            sxhkd &
+        fi
+    fi
 
 #reload bspwm
 super + Escape
@@ -39,7 +52,15 @@ super + p
         notify-send -u low "Focus Follows Pointer: ON"; \
     fi
 
-
+super + shift + r
+  process_name="dbus-daemon"; \
+  if pgrep -x "$process_name" > /dev/null; then \
+    echo "Restarting $process_name..."; \
+    killall "$process_name" 2> /dev/null; \
+    pkill -9 "$process_name" 2> /dev/null; \
+    sleep 0.5; \
+  fi; \
+  bspc wm -r 
 
 #selects a region & saves
 Print
