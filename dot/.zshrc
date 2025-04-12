@@ -355,7 +355,7 @@ alias smbmap='smbmap --no-banner'
 alias verse="verse | tr -s ' '| tr -d '' | sed 's/^ //'"
 alias target='setg RHOST'
 alias ctarget='unsetg RHOST'
-alias hosts='cat /etc/hosts'
+alias hosts='sudoedit /etc/hosts'
 alias apt='sudo apt'
 alias apt-get='sudo apt-get'
 alias btop='sudo btop'
@@ -363,6 +363,10 @@ alias htop='sudo htop'
 alias top='sudo top'
 alias show-options="show_options"
 alias rsync="rsync -Phavzc"
+alias rhost='setg RHOST'
+alias rport='setg RPORT'
+alias lhost='setg LHOST'
+alias lport='setg LPORT'
 
 # --- functions ---
 
@@ -720,3 +724,4 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
 
 ### capture the flag variables ###
+export RHOST="10.129.4.178"
