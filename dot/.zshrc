@@ -581,7 +581,7 @@ function lock_screen() {
 }
 
 show_options() {
-  local allowed=("LHOST" "LPORT" "RHOST" "RPORT" "SSL" "PROTO")
+  local allowed=("LHOST" "LPORT" "RHOST" "RPORT" )
   echo "┌── Current Configuration Options ──"
   for var in "${allowed[@]}"; do
     if [[ -v $var ]]; then
@@ -602,7 +602,7 @@ setg() {
   fi
 
   # Define allowed variables
-  local allowed=("LHOST" "LPORT" "RPORT" "RHOST" "SSL" "PROTO")
+  local allowed=("LHOST" "LPORT" "RPORT" "RHOST" )
   local var_name="${1:u}"  # Convert input to uppercase
 
   # Check if variable is allowed

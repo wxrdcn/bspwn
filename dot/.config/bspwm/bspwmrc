@@ -36,6 +36,7 @@ bspc rule -a "megasync" state=tiled
 bspc rule -a "pavucontrol" state=floating rectangle=1280x800+160+50
 #bspc rule -a "*" title="tui-network" state=floating rectangle=1280x800+160+50
 bspc rule -a "Color_picker_gui.py" state=floating rectangle=400x400
+bspc rule -a "Xfce4-notes" state=floating sticky=on rectangle=400x400
 
 #scripts
 "$HOME/.config/bspwm/start"
