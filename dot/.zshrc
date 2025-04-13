@@ -724,4 +724,3 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
 
 ### capture the flag variables ###
-export RHOST="10.129.4.178"

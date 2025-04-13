@@ -24,6 +24,11 @@ bspc config gapless_monocle      true
 #bspc config single_monocle 	 true
 #bspc config focus_follows_pointer true 
 
+bspc config pointer_modifier mod4  # Use Super (Windows key) as the modifier
+bspc config pointer_action1 move   # Super + left click to move windows
+bspc config pointer_action3 resize_corner  # Super + right click to resize by corner
+
+
 #rules for programs
 bspc rule -a "jadx-gui" state=floating
 bspc rule -a "burp-StartBurp" state=tiled
