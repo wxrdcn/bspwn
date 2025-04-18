@@ -353,8 +353,8 @@ alias ydl="youtube-dl"
 alias python='python -W "ignore"'
 alias smbmap='smbmap --no-banner'
 alias verse="verse | tr -s ' '| tr -d '' | sed 's/^ //'"
-alias target='setg RHOST'
-alias ctarget='unsetg RHOST'
+alias target='setg rhost'
+alias ctarget='unsetg rhost'
 alias hosts='sudoedit /etc/hosts'
 alias apt='sudo apt'
 alias apt-get='sudo apt-get'
@@ -363,15 +363,15 @@ alias htop='sudo htop'
 alias top='sudo top'
 alias show-options="show_options"
 alias rsync="rsync -Phavzc"
-alias rhost='setg RHOST'
-alias rport='setg RPORT'
-alias lhost='setg LHOST'
-alias lport='setg LPORT'
+alias rhost='setg rhost'
+alias rport='setg rport'
+alias lhost='setg lhost'
+alias lport='setg lport'
 
 # --- functions ---
 
 function clear_all(){
-    for i in "LHOST" "LPORT" "RHOST" "RPORT" "SSL" "PROTO"; do
+    for i in "lhost" "lport" "rhost" "rport" "ssl" "proto"; do
         unsetg "$i";
     done
 }
@@ -519,7 +519,7 @@ usage: xps <filename>"
     else
         ip_Oaddress=$( grep --color=never -oP '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}' $1 | sort -u  )
         ports_Ofile=$( grep --color=never -oP '\d{1,5}/open' $1 | awk '{print $1}' FS="/" | xargs | tr " " "," )
-        command="sudo nmap -sVC -p$ports_Ofile --disable-arp-ping --min-rate=5000 -n -Pn $ip_Oaddress -oA targeted --stats-every=5s"
+        command="sudo nmap -sVC -p$ports_Ofile --disable-arp-ping --min-rate=5000 -n -Pn $ip_Oaddress --stats-every=5s -oA targeted"
         echo -e "[+] command copied to clipboard, run:
 $command"
         echo -e "$command" | tr -d '
@@ -585,7 +585,7 @@ function lock_screen() {
 }
 
 show_options() {
-  local allowed=("LHOST" "LPORT" "RHOST" "RPORT" )
+  local allowed=("lhost" "lport" "rhost" "rport" )
   echo "┌── Current Configuration Options ──"
   for var in "${allowed[@]}"; do
     if [[ -v $var ]]; then
@@ -606,8 +606,8 @@ setg() {
   fi
 
   # Define allowed variables
-  local allowed=("LHOST" "LPORT" "RPORT" "RHOST" )
-  local var_name="${1:u}"  # Convert input to uppercase
+  local allowed=("lhost" "lport" "rport" "rhost")
+  local var_name="${1:l}"  # Convert input to lowercase instead of uppercase
 
   # Check if variable is allowed
   if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
@@ -616,10 +616,10 @@ setg() {
     return 1
   fi
 
-  # Additional validation for RHOST
-  if [[ $var_name == "RHOST" ]]; then
+  # Additional validation for rhost
+  if [[ $var_name == "rhost" ]]; then
     if [[ "$2" != "none" ]] && ! [[ "$2" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      echo "Error: Invalid IP address format for RHOST"
+      echo "Error: Invalid IP address format for rhost"
       return 1
     fi
   fi
@@ -656,13 +656,12 @@ setg() {
   export ${var_name}="$2"
   echo "Global variable ${var_name} set to $2"
 
-  # Sync RHOST to .current_target
-  if [[ $var_name == "RHOST" ]]; then
+  # Sync rhost to .current_target
+  if [[ $var_name == "rhost" ]]; then
     echo "$2" > ~/.current_target
-    echo "Updated ~/.current_target with RHOST value"
+    echo "Updated ~/.current_target with rhost value"
   fi
 }
-
 
 unsetg() {
   if [ $# -ne 1 ]; then
@@ -671,8 +670,8 @@ unsetg() {
   fi
 
   # Define allowed variables
-  local allowed=("LHOST" "LPORT" "RPORT" "RHOST" "SSL" "PROTO")
-  local var_name="${1:u}"  # Convert input to uppercase
+  local allowed=("lhost" "lport" "rport" "rhost" "ssl" "proto")
+  local var_name="${1:l}"  # Convert input to lowercase 
 
   # Check if variable is allowed
   if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
@@ -702,8 +701,8 @@ unsetg() {
   unset "$var_name"
   echo "[+] Removed variable \"${var_name}\""
 
-  # Special handling for RHOST: clear .current_target
-  if [[ $var_name == "RHOST" ]]; then
+  # Special handling for rhost: clear .current_target
+  if [[ $var_name == "rhost" ]]; then
     echo "no target" > ~/.current_target
     echo "Cleared ~/.current_target"
   fi

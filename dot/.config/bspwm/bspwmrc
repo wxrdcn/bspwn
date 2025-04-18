@@ -47,4 +47,4 @@ bspc rule -a "Xfce4-notes" state=floating sticky=on rectangle=400x400
 "$HOME/.config/bspwm/start"
 
 #(cursor theme is in ~/.icons and you "select it" in the ~/.Xresources file)
-xsetroot -cursor_name left_ptr &
+xsetroot -cursor_name left_ptr
