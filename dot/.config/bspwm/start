@@ -13,7 +13,7 @@
 # solid color
 #hsetroot -add "#760000" -add "#000000" -gradient 0
 #hsetroot -root -solid "#111111"
-hsetroot -solid "#5d0606" 
+hsetroot -solid "#7f0808" 
 
 # default dynamic
 
@@ -46,7 +46,7 @@ function _background(){
 
 ### Mouse and Touchpad Settings
 # TrackPoint settings
-xinput set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 0.5 &
+xinput set-prop 'TPPS/2 IBM TrackPoint' 'libinput Accel Speed' 0.2 &
 
 # Touchpad settings for T470
 xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Accel Speed' -0.1 &

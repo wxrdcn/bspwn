@@ -284,6 +284,8 @@ if [ "$color_prompt" = yes ]; then
 
     # ---
 fi
+
+
 # --- Auto suggestions ---
 if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -703,7 +705,7 @@ unsetg() {
 
   # Special handling for rhost: clear .current_target
   if [[ $var_name == "rhost" ]]; then
-    echo "no target" > ~/.current_target
+    echo "none" > ~/.current_target
     echo "Cleared ~/.current_target"
   fi
 
