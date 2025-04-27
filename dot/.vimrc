@@ -2,6 +2,8 @@ set backupdir=~/.vimtmp/backup//
 set directory=~/.vimtmp/swap//
 set undodir=~/.vimtmp/undo//
 
+
+set foldmethod=indent
 set nocompatible
 syntax on
 set modelines=0

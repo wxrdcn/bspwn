@@ -52,7 +52,7 @@ super + p
         notify-send -u low "Focus Follows Pointer: ON"; \
     fi
 
-super + shift + r
+super + shift + escape
   process_name="dbus-daemon"; \
   if pgrep -x "$process_name" > /dev/null; then \
     echo "Restarting $process_name..."; \

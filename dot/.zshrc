@@ -93,80 +93,166 @@ if [ "$color_prompt" = yes ]; then
     # Initialize prompt style
     PROMPT_STYLE=detailed
 
-    # IP detection logic
+    # Enhanced IP detection logic that integrates with .current_ip file
     get_ipaddr() {
-        local interfaces=("tun0" "tap0" "eth0" "wlan0" "wlan1")
+        local CURRENT_IP_FILE="$HOME/.current_ip"
+        local custom_mode=false
+        
+        # Check if we should ignore the current_ip file (force detection)
+        if [[ "$1" == "--detect" ]]; then
+            custom_mode=false
+            shift
+        # Check if there's a custom IP set
+        elif [[ -f "$CURRENT_IP_FILE" ]] && [[ -s "$CURRENT_IP_FILE" ]]; then
+            local file_ip=$(cat "$CURRENT_IP_FILE")
+            local file_mode=$(head -n 1 "$CURRENT_IP_FILE" | cut -d':' -f1)
+            local file_value=$(head -n 1 "$CURRENT_IP_FILE" | cut -d':' -f2)
+            
+            # If it's in custom mode, return the stored IP
+            if [[ "$file_mode" == "custom" ]]; then
+                echo "$file_value"
+                return 0
+            fi
+            # Otherwise, it's in auto mode or interface mode, which we'll handle below
+        fi
+
+        local interfaces
+        
+        # If an interface is specified, check only that one
+        if [[ -n "$1" ]]; then
+            interfaces=("$1")
+        else
+            # Get interface from file if it exists and we're in interface mode
+            if [[ -f "$CURRENT_IP_FILE" ]] && grep -q "^interface:" "$CURRENT_IP_FILE"; then
+                local iface=$(grep "^interface:" "$CURRENT_IP_FILE" | cut -d':' -f2)
+                interfaces=("$iface")
+            else
+                # Otherwise check all common interfaces in priority order
+                interfaces=("tun0" "tap0" "eth0" "wlan0" "wlan1" "wlan2" "lo")
+            fi
+        fi
+        
         for iface in "${interfaces[@]}"; do
             if ip link show "$iface" &>/dev/null; then
                 local ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
-                [[ -n $ipaddr ]] && { echo $ipaddr; return }
+                if [[ -n $ipaddr ]]; then
+                    echo "$ipaddr"
+                    return 0
+                fi
             fi
         done
+        
+        # If we've searched for a specific interface and found nothing, return an error code
+        if [[ -n "$1" ]]; then
+            return 1
+        fi
+        
         echo "offline"
+        return 0
     }
 
-    # Add to your .zshrc
-    setopt prompt_subst
-
-    function shorten_path() {
-        local path=${PWD/#$HOME/\~}
-        local is_absolute=0
-        [[ "$path" == /* ]] && is_absolute=1  # Check if path is absolute
-        local elements=("${(@s:/:)path}")
-        elements=("${(@)elements:#}")  # Remove empty elements
-        local shortened=""
-
-        if [[ "$path" == "~" ]]; then
-            echo "~"
-            return
-        fi
-
-        # Handle home directory (~/...) case
-        if [[ "$path" == "~/"* ]]; then
-            shortened="~/"
-            elements=("${elements[@]:1}")  # Remove '~' from elements
-        elif (( is_absolute )); then
-            # Only add initial slash for absolute paths
-            shortened="/"
-        fi
-
-        local num_elements=${#elements[@]}
-
-        # Process all elements except the last one (if any)
-        for ((i=1; i < num_elements; i++)); do
-            shortened+="${elements[i][1]}/"  # Shorten parent dirs to first char followed by slash
-        done
-
-        # Append the full last directory component without an extra slash
-        if (( num_elements > 0 )); then
-            shortened+="${elements[-1]}"
-        fi
-
-        # Handle root directory edge case
-        [[ "$shortened" == "/" ]] && echo "/" && return
-
-        echo "${shortened}"
-    }
-
-    # Update your update_prompt function
-    update_prompt() {
-        case $PROMPT_STYLE in
-            detailed)
-                local ipaddr=$(get_ipaddr)
-                PROMPT="${bg_color}${fg_color}[ %nX$ipaddr \$(shorten_path) ]\$${end_color} "
+    # Function to update the current IP configuration file
+    update_ip_config() {
+        local mode="$1"      # 'auto', 'interface', or 'custom'
+        local value="$2"     # interface name or custom IP
+        local CURRENT_IP_FILE="$HOME/.current_ip"
+        
+        case "$mode" in
+            auto)
+                echo "auto:" > "$CURRENT_IP_FILE"
                 ;;
-            ipdir)
-                local ipaddr=$(get_ipaddr)
-                PROMPT="${bg_color}${fg_color}[ $ipaddr \$(shorten_path) ]\$${end_color} "
+            interface)
+                # Verify the interface exists and has an IP
+                local ip=$(get_ipaddr --detect "$value")
+                if [[ $? -eq 0 && -n "$ip" && "$ip" != "offline" ]]; then
+                    echo "interface:$value" > "$CURRENT_IP_FILE"
+                    echo "$ip" >> "$CURRENT_IP_FILE"
+                else
+                    echo "Error: Interface $value doesn't exist or has no IPv4 address"
+                    return 1
+                fi
                 ;;
-            dir)
-                PROMPT="${bg_color}${fg_color}[ \$(shorten_path) ]\$${end_color} "
+            custom)
+                # Verify it's a valid IPv4
+                if [[ "$value" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+                    echo "custom:$value" > "$CURRENT_IP_FILE"
+                else
+                    echo "Error: Invalid IPv4 address format"
+                    return 1
+                fi
                 ;;
-            minimal)
-                PROMPT="${bg_color}${fg_color}\$${end_color} "
+            *)
+                echo "Error: Invalid mode. Use 'auto', 'interface', or 'custom'"
+                return 1
                 ;;
         esac
-    }
+        
+        return 0
+}
+
+
+      # Add to your .zshrc
+      setopt prompt_subst
+
+      function shorten_path() {
+          local path=${PWD/#$HOME/\~}
+          local is_absolute=0
+          [[ "$path" == /* ]] && is_absolute=1  # Check if path is absolute
+          local elements=("${(@s:/:)path}")
+          elements=("${(@)elements:#}")  # Remove empty elements
+          local shortened=""
+
+          if [[ "$path" == "~" ]]; then
+              echo "~"
+              return
+          fi
+
+          # Handle home directory (~/...) case
+          if [[ "$path" == "~/"* ]]; then
+              shortened="~/"
+              elements=("${elements[@]:1}")  # Remove '~' from elements
+          elif (( is_absolute )); then
+              # Only add initial slash for absolute paths
+              shortened="/"
+          fi
+
+          local num_elements=${#elements[@]}
+
+          # Process all elements except the last one (if any)
+          for ((i=1; i < num_elements; i++)); do
+              shortened+="${elements[i][1]}/"  # Shorten parent dirs to first char followed by slash
+          done
+
+          # Append the full last directory component without an extra slash
+          if (( num_elements > 0 )); then
+              shortened+="${elements[-1]}"
+          fi
+
+          # Handle root directory edge case
+          [[ "$shortened" == "/" ]] && echo "/" && return
+
+          echo "${shortened}"
+      }
+
+      # Update your update_prompt function
+      update_prompt() {
+          case $PROMPT_STYLE in
+              detailed)
+                  local ipaddr=$(get_ipaddr)
+                  PROMPT="${bg_color}${fg_color}[ %nX$ipaddr \$(shorten_path) ]\$${end_color} "
+                  ;;
+              ipdir)
+                  local ipaddr=$(get_ipaddr)
+                  PROMPT="${bg_color}${fg_color}[ $ipaddr \$(shorten_path) ]\$${end_color} "
+                  ;;
+              dir)
+                  PROMPT="${bg_color}${fg_color}[ \$(shorten_path) ]\$${end_color} "
+                  ;;
+              minimal)
+                  PROMPT="${bg_color}${fg_color}\$${end_color} "
+                  ;;
+          esac
+      }
 
 
 
@@ -602,114 +688,166 @@ show_options() {
 }
 
 setg() {
-  if [ $# -ne 2 ]; then
-    echo "Usage: setg <variable> <value>"
-    return 1
-  fi
-
-  # Define allowed variables
-  local allowed=("lhost" "lport" "rport" "rhost")
-  local var_name="${1:l}"  # Convert input to lowercase instead of uppercase
-
-  # Check if variable is allowed
-  if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
-    echo "Error: '${var_name}' is not a configurable variable"
-    echo "Allowed variables: ${allowed[@]}"
-    return 1
-  fi
-
-  # Additional validation for rhost
-  if [[ $var_name == "rhost" ]]; then
-    if [[ "$2" != "none" ]] && ! [[ "$2" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      echo "Error: Invalid IP address format for rhost"
-      return 1
+    if [ $# -eq 0 ]; then
+        echo "Usage: setg <variable> [value]"
+        return 1
     fi
-  fi
 
-  # Get the actual file path (resolving symlink)
-  local zshrc_actual=$(readlink -f ~/.zshrc)
+    # Define allowed variables
+    local allowed=("lhost" "lport" "rport" "rhost")
+    local var_name="${1:l}"  # Convert input to lowercase
 
-  # Create a temporary file
-  local temp_file=$(mktemp)
+    # Check if variable is allowed
+    if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
+        echo "Error: '${var_name}' is not a configurable variable"
+        echo "Allowed variables: ${allowed[@]}"
+        return 1
+    fi
 
-  # Check if the variable already exists in the file
-  local var_exists=0
-
-  # Process the file line by line and update the variable if it exists
-  while IFS= read -r line; do
-    if [[ "$line" =~ ^export\ ${var_name}= ]]; then
-      echo "export ${var_name}=\"$2\"" >> "$temp_file"
-      var_exists=1
+    local var_value
+    
+    # Special handling for lhost variable
+    if [[ $var_name == "lhost" ]]; then
+        if [ $# -eq 1 ]; then
+            # No value provided, use auto mode
+            update_ip_config "auto"
+            var_value=$(get_ipaddr)
+            echo "Using auto-detected IP: $var_value"
+        elif [[ "$2" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            # If it's a valid IPv4 address format, use custom mode
+            update_ip_config "custom" "$2"
+            var_value="$2"
+        else
+            # Try to get IP from specified interface
+            if update_ip_config "interface" "$2"; then
+                var_value=$(get_ipaddr)
+                echo "Using IP from interface $2: $var_value"
+            else
+                # Fall back to auto mode
+                update_ip_config "auto"
+                var_value=$(get_ipaddr)
+                echo "Falling back to auto-detected IP: $var_value"
+            fi
+        fi
+    # Special handling for rhost
+    elif [[ $var_name == "rhost" ]]; then
+        if [ $# -ne 2 ]; then
+            echo "Error: rhost requires an IP address value"
+            return 1
+        elif [[ "$2" != "none" ]] && ! [[ "$2" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+            echo "Error: Invalid IP address format for rhost"
+            return 1
+        else
+            var_value="$2"
+        fi
+    # Handle other variables
     else
-      echo "$line" >> "$temp_file"
+        if [ $# -ne 2 ]; then
+            echo "Error: $var_name requires a value"
+            return 1
+        fi
+        var_value="$2"
     fi
-  done < "$zshrc_actual"
 
-  # If the variable doesn't exist, append it to the end of the file
-  if [[ $var_exists -eq 0 ]]; then
-    echo "export ${var_name}=\"$2\"" >> "$temp_file"
-  fi
+    # Get the actual file path (resolving symlink)
+    local zshrc_actual=$(readlink -f ~/.zshrc)
 
-  # Replace the original file with the new content
-  cat "$temp_file" > "$zshrc_actual"
-  rm "$temp_file"
+    # Create a temporary file
+    local temp_file=$(mktemp)
 
-  # Update current session
-  export ${var_name}="$2"
-  echo "Global variable ${var_name} set to $2"
+    # Check if the variable already exists in the file
+    local var_exists=0
 
-  # Sync rhost to .current_target
-  if [[ $var_name == "rhost" ]]; then
-    echo "$2" > ~/.current_target
-    echo "Updated ~/.current_target with rhost value"
-  fi
+    # Process the file line by line and update the variable if it exists
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^export\ ${var_name}= ]]; then
+            # Special case for lhost - make it dynamic when in auto or interface mode
+            if [[ $var_name == "lhost" && (! -f "$HOME/.current_ip" || $(head -n 1 "$HOME/.current_ip" | cut -d':' -f1) != "custom") ]]; then
+                echo "export ${var_name}=\"\$(get_ipaddr)\"" >> "$temp_file"
+            else
+                echo "export ${var_name}=\"$var_value\"" >> "$temp_file"
+            fi
+            var_exists=1
+        else
+            echo "$line" >> "$temp_file"
+        fi
+    done < "$zshrc_actual"
+
+    # If the variable doesn't exist, append it to the end of the file
+    if [[ $var_exists -eq 0 ]]; then
+        # Special case for lhost - make it dynamic when in auto or interface mode
+        if [[ $var_name == "lhost" && (! -f "$HOME/.current_ip" || $(head -n 1 "$HOME/.current_ip" | cut -d':' -f1) != "custom") ]]; then
+            echo "export ${var_name}=\"\$(get_ipaddr)\"" >> "$temp_file"
+        else
+            echo "export ${var_name}=\"$var_value\"" >> "$temp_file"
+        fi
+    fi
+
+    # Replace the original file with the new content
+    cat "$temp_file" > "$zshrc_actual"
+    rm "$temp_file"
+
+    # Update current session
+    export ${var_name}="$var_value"
+    echo "Global variable ${var_name} set to $var_value"
+
+    # Sync rhost to .current_target
+    if [[ $var_name == "rhost" ]]; then
+        echo "$var_value" > ~/.current_target
+        echo "Updated ~/.current_target with rhost value"
+    fi
 }
 
+
 unsetg() {
-  if [ $# -ne 1 ]; then
-    echo "Usage: unsetg <variable>"
-    return 1
-  fi
-
-  # Define allowed variables
-  local allowed=("lhost" "lport" "rport" "rhost" "ssl" "proto")
-  local var_name="${1:l}"  # Convert input to lowercase 
-
-  # Check if variable is allowed
-  if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
-    echo "Error: '${var_name}' is not a configurable variable"
-    echo "Allowed variables: ${allowed[@]}"
-    return 1
-  fi
-
-  # Get the actual file path (resolving symlink)
-  local zshrc_actual=$(readlink -f ~/.zshrc)
-
-  # Create a temporary file
-  local temp_file=$(mktemp)
-
-  # Process the file line by line, skipping the target variable
-  while IFS= read -r line; do
-    if [[ ! "$line" =~ ^export\ ${var_name}= ]]; then
-      echo "$line" >> "$temp_file"
+    if [ $# -ne 1 ]; then
+        echo "Usage: unsetg <variable>"
+        return 1
     fi
-  done < "$zshrc_actual"
 
-  # Replace the original file with the new content
-  cat "$temp_file" > "$zshrc_actual"
-  rm "$temp_file"
+    # Define allowed variables
+    local allowed=("lhost" "lport" "rport" "rhost" "ssl" "proto")
+    local var_name="${1:l}"  # Convert input to lowercase 
 
-  # Unset variable in the current session
-  unset "$var_name"
-  echo "[+] Removed variable \"${var_name}\""
+    # Check if variable is allowed
+    if [[ ! " ${allowed[@]} " =~ " ${var_name} " ]]; then
+        echo "Error: '${var_name}' is not a configurable variable"
+        echo "Allowed variables: ${allowed[@]}"
+        return 1
+    fi
 
-  # Special handling for rhost: clear .current_target
-  if [[ $var_name == "rhost" ]]; then
-    echo "none" > ~/.current_target
-    echo "Cleared ~/.current_target"
-  fi
+    # Get the actual file path (resolving symlink)
+    local zshrc_actual=$(readlink -f ~/.zshrc)
 
-  return 0
+    # Create a temporary file
+    local temp_file=$(mktemp)
+
+    # Process the file line by line, skipping the target variable
+    while IFS= read -r line; do
+        if [[ ! "$line" =~ ^export\ ${var_name}= ]]; then
+            echo "$line" >> "$temp_file"
+        fi
+    done < "$zshrc_actual"
+
+    # Replace the original file with the new content
+    cat "$temp_file" > "$zshrc_actual"
+    rm "$temp_file"
+
+    # Unset variable in the current session
+    unset "$var_name"
+    echo "[+] Removed variable \"${var_name}\""
+
+    # Special handling for variables
+    if [[ $var_name == "rhost" ]]; then
+        echo "none" > ~/.current_target
+        echo "Cleared ~/.current_target"
+    elif [[ $var_name == "lhost" ]]; then
+        # Reset IP configuration to auto mode
+        echo "auto:" > "$HOME/.current_ip"
+        echo "Reset IP configuration to auto mode"
+    fi
+
+    return 0
 }
 
 PROMPT_EOL_MARK=''
@@ -725,3 +863,4 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
 
 ### capture the flag variables ###
+export lhost="$(get_ipaddr)"

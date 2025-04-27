@@ -94,35 +94,40 @@ validate_ip() {
   fi
 }
 
-
 handle_edit() {
   current_target=$(cat "$TARGET_FILE" 2>/dev/null || echo "none")
-#  local message="Enter a valid IPv4 address"
+  local message="Enter a valid IPv4 address"
   local prompt
   local initial_text
+  local invalid_attempt=false
+  local last_invalid_ip
 
   while true; do
-    # Determine initial text and prompt based on last action
-    if [ -n "$last_action" ]; then
+    # Determine initial text and prompt based on state
+    if $invalid_attempt; then
+      message="Invalid IP! Enter a valid IPv4 address"
+      prompt="[+] Set target IP"
+      initial_text="$last_invalid_ip"
+      invalid_attempt=false  # Reset for next iteration
+    elif [ -n "$last_action" ]; then
       initial_text="$last_action"
-      prompt="[+] Set target IP:"
+      prompt="[+] Set target IP"
     else
       if [ "$current_target" = "none" ]; then
-        prompt="[+] Set target IP:"
+        message="[+] Set target IP"
         initial_text=""
       else
-        prompt="Current $current_target:"
+        message="Current $current_target"
         initial_text="$current_target"
       fi
     fi
 
     # Present Rofi dialog
-    action=$(printf "clear" | rofi_theme -dmenu -p "$prompt" -selected-row 1)
+    action=$(printf "clear" | rofi_theme -dmenu -p "$prompt" -mesg "$message" -selected-row 1)
 
-    # Exit if user cancels (e.g., presses Escape)
+    # Exit if user cancels
     [ -z "$action" ] && exit 0
 
-    # Handle 'clear' action
     if [ "$action" = "clear" ]; then
       unsetg_zshrc rhost
       notify-send -u low "Target cleared"
@@ -135,7 +140,8 @@ handle_edit() {
       notify-send -u low "Target set to $action"
       exit 0
     else
-      prompt="Invalid IP! Enter a valid IPv4 address"
+      invalid_attempt=true
+      last_invalid_ip="$action"
     fi
   done
 }
