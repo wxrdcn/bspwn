@@ -95,61 +95,44 @@ if [ "$color_prompt" = yes ]; then
 
     # Enhanced IP detection logic that integrates with .current_ip file
     get_ipaddr() {
-        local CURRENT_IP_FILE="$HOME/.current_ip"
-        local custom_mode=false
-        
-        # Check if we should ignore the current_ip file (force detection)
-        if [[ "$1" == "--detect" ]]; then
-            custom_mode=false
-            shift
-        # Check if there's a custom IP set
-        elif [[ -f "$CURRENT_IP_FILE" ]] && [[ -s "$CURRENT_IP_FILE" ]]; then
-            local file_ip=$(cat "$CURRENT_IP_FILE")
-            local file_mode=$(head -n 1 "$CURRENT_IP_FILE" | cut -d':' -f1)
-            local file_value=$(head -n 1 "$CURRENT_IP_FILE" | cut -d':' -f2)
-            
-            # If it's in custom mode, return the stored IP
-            if [[ "$file_mode" == "custom" ]]; then
-                echo "$file_value"
-                return 0
-            fi
-            # Otherwise, it's in auto mode or interface mode, which we'll handle below
-        fi
+    local CURRENT_IP_FILE="$HOME/.current_ip"
+    local custom_mode=false
+  
+      # Check for custom/interface mode
+      if [[ -f "$CURRENT_IP_FILE" ]] && [[ -s "$CURRENT_IP_FILE" ]]; then
+          local file_mode=$(head -n 1 "$CURRENT_IP_FILE" | cut -d':' -f1)
+          local file_value=$(head -n 1 "$CURRENT_IP_FILE" | cut -d':' -f2)
+          
+          if [[ "$file_mode" == "custom" ]]; then
+              echo "$file_value"
+              return 0
+          elif [[ "$file_mode" == "interface" ]]; then
+              # Check specified interface
+              local ipaddr=$(ip -4 addr show "$file_value" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
+              if [[ -n "$ipaddr" ]]; then
+                  echo "$ipaddr"
+                  return 0
+              fi
+              # Fallback to auto if interface has no IP
+          fi
+      fi
 
-        local interfaces
-        
-        # If an interface is specified, check only that one
-        if [[ -n "$1" ]]; then
-            interfaces=("$1")
-        else
-            # Get interface from file if it exists and we're in interface mode
-            if [[ -f "$CURRENT_IP_FILE" ]] && grep -q "^interface:" "$CURRENT_IP_FILE"; then
-                local iface=$(grep "^interface:" "$CURRENT_IP_FILE" | cut -d':' -f2)
-                interfaces=("$iface")
-            else
-                # Otherwise check all common interfaces in priority order
-                interfaces=("tun0" "tap0" "eth0" "wlan0" "wlan1" "wlan2" "lo")
-            fi
-        fi
-        
-        for iface in "${interfaces[@]}"; do
-            if ip link show "$iface" &>/dev/null; then
-                local ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
-                if [[ -n $ipaddr ]]; then
-                    echo "$ipaddr"
-                    return 0
-                fi
-            fi
-        done
-        
-        # If we've searched for a specific interface and found nothing, return an error code
-        if [[ -n "$1" ]]; then
-            return 1
-        fi
-        
-        echo "offline"
-        return 0
+      # Auto-detect: Check interfaces in priority order (add your VPN interface here)
+      local interfaces=("tun0" "tun1" "tap0" "wlan0" "wlan1" "eth0" "eth1" "lo")
+      for iface in "${interfaces[@]}"; do
+          if ip link show "$iface" &>/dev/null; then
+              local ipaddr=$(ip -4 addr show "$iface" 2>/dev/null | grep -Po 'inet \K\d{1,3}(\.\d{1,3}){3}' | head -n1)
+              if [[ -n "$ipaddr" ]]; then
+                  echo "$ipaddr"
+                  return 0
+              fi
+          fi
+      done
+      
+      echo "offline"
+      return 0
     }
+
 
     # Function to update the current IP configuration file
     update_ip_config() {
@@ -583,7 +566,7 @@ function mkt() {
 " "$PWD" "$fname"
 
     # Create directory structure
-    if ! mkdir -p "$fname"/{recon/{nmap/{tcp,udp},tcp,udp},loot,xploit/{bx,px}/{cve,script,payload,misc}} 2>/dev/null; then
+    if ! mkdir -p "$fname"/{recon/{nmap,tcp,udp,sctp},loot,xploit/{bx,px}/{cve,script,payload,misc}} 2>/dev/null; then
         echo >&2 "Error: Failed to create directory structure"
         return 2
     fi
