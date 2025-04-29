@@ -16,8 +16,7 @@
     
     
     /* Typography */
-    font:           "Fira Code 14";
-    font-bold:      "Fira Code Bold 14";
+    font:           "Terminess Nerd Font Mono Bold 22";
 }
 
 window {
@@ -55,7 +54,7 @@ prompt {
 entry {
     background-color: transparent;
     text-color:     @fg;
-    placeholder:    "Enter valid IPv4 address";
+    placeholder:    "Enter valid IPv4 target address";
     placeholder-color: @fg-alt;
     font:           @font;
     padding:        0px;

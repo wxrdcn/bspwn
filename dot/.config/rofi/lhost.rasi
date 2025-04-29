@@ -15,8 +15,7 @@
     lines:          6;  /* Increased for interface options */
     
     /* Typography */
-    font:           "Fira Code 14";
-    font-bold:      "Fira Code Bold 14";
+    font:           "Terminess Nerd Font Mono Bold 20";
 }
 
 window {
