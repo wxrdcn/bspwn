@@ -7,7 +7,8 @@ set foldmethod=indent
 set nocompatible
 syntax on
 set modelines=0
-set number
+"set number
+set nonu
 set encoding=utf-8
 set wrap
 

@@ -81,10 +81,7 @@ fi
 if [ "$color_prompt" = yes ]; then
     # --- Prompt Configuration ---
     # Define ANSI color codes using tput
-    reset_color="$(tput sgr0)"
-    red="$(tput setaf 160)"
-
-    bg_color='%{%K{#5d0606}%}'
+    bg_color='%{%K{#760000}%}'
     fg_color='%{%F{#ced4da}%}'
     #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
     end_color='%{%f%k%}'
