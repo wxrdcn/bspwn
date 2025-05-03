@@ -2,13 +2,16 @@ set backupdir=~/.vimtmp/backup//
 set directory=~/.vimtmp/swap//
 set undodir=~/.vimtmp/undo//
 
+set ruler
+set list
+filetype on
+set mouse=a
 
 set foldmethod=indent
 set nocompatible
 syntax on
 set modelines=0
-"set number
-set nonu
+set number
 set encoding=utf-8
 set wrap
 

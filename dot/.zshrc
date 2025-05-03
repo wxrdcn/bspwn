@@ -38,8 +38,17 @@ bindkey '^[[F' end-of-line                        # end
 bindkey '^[[Z' undo                               # shift + tab undo
 
 # --- Completion ---
-autoload -Uz compinit
-compinit -d ~/.cache/zcompdump
+#autoload -Uz compinit
+#compinit -d ~/.cache/zcompdump
+
+source /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+
+if [ -f /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh ]; then
+    . /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+fi
+
+
+
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete
@@ -219,17 +228,17 @@ if [ "$color_prompt" = yes ]; then
           case $PROMPT_STYLE in
               detailed)
                   local ipaddr=$(get_ipaddr)
-                  PROMPT="${bg_color}${fg_color}[ %nX$ipaddr \$(shorten_path) ]\$${end_color} "
+                  PROMPT="${bg_color}${fg_color}[%n@$ipaddr:\$(shorten_path)]\$${end_color}"
                   ;;
               ipdir)
                   local ipaddr=$(get_ipaddr)
-                  PROMPT="${bg_color}${fg_color}[ $ipaddr \$(shorten_path) ]\$${end_color} "
+                  PROMPT="${bg_color}${fg_color}[$ipaddr\$(shorten_path)]\$${end_color}"
                   ;;
               dir)
-                  PROMPT="${bg_color}${fg_color}[ \$(shorten_path) ]\$${end_color} "
+                  PROMPT="${bg_color}${fg_color}[\$(shorten_path)]\$${end_color}"
                   ;;
               minimal)
-                  PROMPT="${bg_color}${fg_color}\$${end_color} "
+                  PROMPT="${bg_color}${fg_color}\$${end_color}"
                   ;;
           esac
       }
@@ -357,6 +366,8 @@ if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     . /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
     ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#999'
 fi
+
+
 
 
 # --- LS colors ---
