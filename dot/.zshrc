@@ -88,8 +88,10 @@ if [ "$color_prompt" = yes ]; then
     # Define ANSI color codes using tput
     bg_color='%{%K{#760000}%}'
     fg_color='%{%F{#ced4da}%}'
+    fg_color_red='%{%F{#c60505}%}'
     #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
     end_color='%{%f%k%}'
+    end_color_red='%{%f}'
 
 
     # Initialize prompt style
@@ -231,17 +233,21 @@ if [ "$color_prompt" = yes ]; then
           case $PROMPT_STYLE in
               detailed)
                   local ipaddr=$(get_ipaddr)
-                  PROMPT="${bg_color}${fg_color}[%n@$ipaddr:\$(shorten_path)]${symbol}${end_color}"
+                  #PROMPT="${bg_color}${fg_color}[%n@$ipaddr:\$(shorten_path)]${symbol}${end_color}"
+                  PROMPT="${fg_color_red}[%n@$ipaddr:\$(shorten_path)]${symbol}${end_color}"
                   ;;
               ipdir)
                   local ipaddr=$(get_ipaddr)
-                  PROMPT="${bg_color}${fg_color}[$ipaddr:\$(shorten_path)]${symbol}${end_color}"
+                  #PROMPT="${bg_color}${fg_color}[$ipaddr:\$(shorten_path)]${symbol}${end_color}"
+                  PROMPT="${fg_color_red}[$ipaddr:\$(shorten_path)]${symbol}${end_color}"
                   ;;
               dir)
-                  PROMPT="${bg_color}${fg_color}[\$(shorten_path)]${symbol}${end_color}"
+                  #PROMPT="${bg_color}${fg_color}[\$(shorten_path)]${symbol}${end_color}"
+                  PROMPT="${fg_color_red}[\$(shorten_path)]${symbol}${end_color}"
                   ;;
               minimal)
-                  PROMPT="${bg_color}${fg_color}${symbol}${end_color}"
+                  #PROMPT="${bg_color}${fg_color}${symbol}${end_color}"
+                  PROMPT="${fg_color_red}${symbol}${end_color}"
                   ;;
           esac
       }
@@ -291,7 +297,7 @@ if [ "$color_prompt" = yes ]; then
         done
 
         local saved_prompt=$PROMPT
-        PROMPT='${bg_color}${fg_color}\$${end_color} '
+        PROMPT="${fg_color_red}%#${end_color}"
         zle .reset-prompt
         PROMPT=$saved_prompt
 
@@ -311,7 +317,7 @@ if [ "$color_prompt" = yes ]; then
         . /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
         ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern line regexp)
         ZSH_HIGHLIGHT_STYLES[default]=none
-        ZSH_HIGHLIGHT_STYLES[line]=bold,standout
+        #ZSH_HIGHLIGHT_STYLES[line]=bold,standout # bold text, white background
         ZSH_HIGHLIGHT_STYLES[unknown-token]=fg=red,underline
         ZSH_HIGHLIGHT_STYLES[reserved-word]=fg=cyan
         ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=green,underline
