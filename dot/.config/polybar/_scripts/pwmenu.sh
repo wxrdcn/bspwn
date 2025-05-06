@@ -33,10 +33,10 @@ case "$chosen" in
 		 shutdown -r now
 		;;
 	$lock)
-		if command -v xfce4-screensaver-command &> /dev/null; then
-			xfce4-screensaver-command --lock
+		if command -v betterlockscreen &> /dev/null; then
+			betterlockscreen -l
 		else
-			msg "Lock command 'xfce4-screensaver-command' not found. Please install it."
+			msg "Lock command 'betterlockscreen' not found. Please install it."
 		fi
 		;;
 	$suspend)

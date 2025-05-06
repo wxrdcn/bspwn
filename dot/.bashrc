@@ -82,7 +82,15 @@ set_bash_prompt() {
 
     local ipaddr=$(get_ipaddr)
 #    PS1="${bold}${red}[ \u@${ipaddr} \w ]$ ${reset_color}"
-    PS1="[ \u@${ipaddr} \w ]$ "
+          # Determine symbol based on user
+          local symbol='$'
+          if [[ $EUID -eq 0 ]]; then
+              symbol='#'
+          fi
+
+
+
+      PS1="[\u@${ipaddr}:\w]${symbol}"
 }
 PROMPT_COMMAND="set_bash_prompt"
 

@@ -85,11 +85,11 @@ restart_process() {
 
 # define list of processes
 
-process_list=( "kdeconnectd" "kdeconnect-indicator" "cbatticon" "lxpolkit" "pasystray" "xfce4-clipman" "nm-applet" "xfce4-screensaver" "xfce4-power-manager" "dunst" "sxhkd" "polybar")
+process_list=( "kdeconnectd" "kdeconnect-indicator" "lxpolkit" "xfce4-clipman" "nm-applet" "dunst" "sxhkd" "polybar" "picom")
 for process in "${process_list[@]}"; do
   restart_process $process 
 done
 
-xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/show-tray-icon" -s "true"
+#xfconf-query -c xfce4-power-manager -p "/xfce4-power-manager/show-tray-icon" -s "true"
 
 ############################################################

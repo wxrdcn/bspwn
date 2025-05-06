@@ -14,8 +14,8 @@ WORDCHARS=${WORDCHARS//\/} # Don't consider slashes part of words
 
 # --- History config ---
 HISTFILE=~/.zsh_history
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=99999
+SAVEHIST=99999
 setopt hist_expire_dups_first
 setopt hist_ignore_dups
 setopt hist_ignore_space
@@ -88,7 +88,7 @@ if [ "$color_prompt" = yes ]; then
     # Define ANSI color codes using tput
     bg_color='%{%K{#760000}%}'
     fg_color='%{%F{#ced4da}%}'
-    fg_color_red='%{%F{#c60505}%}'
+    fg_color_red='%{%F{#ff0000}%}'
     #end_color='%{%f%k%}%{%K{#2d2d2d}%}'
     end_color='%{%f%k%}'
     end_color_red='%{%f}'
@@ -420,7 +420,7 @@ alias lra='ls -lRa'
 alias igrep='grep -i'
 alias grepi='grep -i'
 alias rm='rm -Iv'
-alias ffetch='fastfetch --logo none --color red'
+alias ff='fastfetch --logo none --color red'
 alias cat='batcat --paging=never --style=plain'
 alias trans='trans --brief'
 alias ris="ristretto"
@@ -861,6 +861,6 @@ export GEM_HOME="$HOME/.gems"
 export PATH="$HOME/.gems/bin:$PATH"
 export _JAVA_AWT_WM_NONREPARENTING=1
 export TERM=xterm-256color
-
+export PATH="$PATH:/usr/local/zig"
 ### capture the flag variables ###
 export lhost="$(get_ipaddr)"
