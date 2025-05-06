@@ -544,9 +544,7 @@ function java11(){
     echo "switching to java 11..."
     sudo update-java-alternatives -s java-1.11.0-openjdk-amd64
     export PATH=$PATH:$JAVA_HOME
-    java --version
-
-}
+    java --version}
 
 function java17(){
     echo "switching to java 17..."
@@ -558,14 +556,12 @@ function java17(){
 function w32(){
     export WINEARCH=win32
     export WINEPREFIX=~/.wine32
-
 }
 
 function w64(){
     export WINEARCH=win64
     export WINEPREFIX=~/.wine
 }
-
 
 function mkt() {
     # Combine all arguments into a single folder name
@@ -595,7 +591,6 @@ function mkt() {
     fi
 
     ls -ld "$fname"
-
 }
 
 
@@ -653,6 +648,12 @@ function rmk() {
             echo "Item $item does not exist or is neither a file nor a directory."
         fi
     done
+}
+
+function gip(){
+  git add .
+  git commit -m x
+  git push origin main --force
 }
 
 function afu()

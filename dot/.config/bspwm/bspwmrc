@@ -5,7 +5,7 @@ wmname LG3D &
 export _JAVA_AWT_WM_NONREPARENTING=1
 
 # 
-export XDG_CURRENT_DESKTOP=XFCE
+export XDG_CURRENT_DESKTOP=bspwm  # or "KDE" if needed for some apps
 export XDG_DATA_DIRS="/usr/share:/usr/local/share:$HOME/.local/share"
 export QT_QPA_PLATFORMTHEME="qt5ct"
 
@@ -47,4 +47,7 @@ bspc rule -a "Xfce4-notes" state=floating sticky=on rectangle=400x400
 "$HOME/.config/bspwm/start"
 
 #(cursor theme is in ~/.icons and you "select it" in the ~/.Xresources file)
-xsetroot -cursor_name left_ptr
+xsetroot -cursor_name left_ptr -xcf /usr/share/icons/Adwaita/cursors/left_ptr 32
+xrdb -merge ~/.Xresources
+export XCURSOR_SIZE=32
+export XCURSOR_THEME=Adwaita
