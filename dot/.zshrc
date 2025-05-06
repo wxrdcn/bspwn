@@ -38,17 +38,13 @@ bindkey '^[[F' end-of-line                        # end
 bindkey '^[[Z' undo                               # shift + tab undo
 
 # --- Completion ---
-#autoload -Uz compinit
-#compinit -d ~/.cache/zcompdump
-
-source /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-
-if [ -f /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh ]; then
-    . /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
-fi
+#if [ -f /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh ]; then
+#    . /usr/share/zsh-autocomplete/zsh-autocomplete.plugin.zsh
+#fi
 
 
-
+autoload -Uz compinit
+compinit -d ~/.cache/zcompdump
 zstyle ':completion:*:*:*:*:*' menu select
 zstyle ':completion:*' auto-description 'specify: %d'
 zstyle ':completion:*' completer _expand _complete
@@ -224,21 +220,28 @@ if [ "$color_prompt" = yes ]; then
       }
 
       # Update your update_prompt function
+      # Inside the update_prompt function
       update_prompt() {
+          # Determine symbol based on user
+          local symbol='$'
+          if [[ $EUID -eq 0 ]]; then
+              symbol='#'
+          fi
+
           case $PROMPT_STYLE in
               detailed)
                   local ipaddr=$(get_ipaddr)
-                  PROMPT="${bg_color}${fg_color}[%n@$ipaddr:\$(shorten_path)]\$${end_color}"
+                  PROMPT="${bg_color}${fg_color}[%n@$ipaddr:\$(shorten_path)]${symbol}${end_color}"
                   ;;
               ipdir)
                   local ipaddr=$(get_ipaddr)
-                  PROMPT="${bg_color}${fg_color}[$ipaddr\$(shorten_path)]\$${end_color}"
+                  PROMPT="${bg_color}${fg_color}[$ipaddr:\$(shorten_path)]${symbol}${end_color}"
                   ;;
               dir)
-                  PROMPT="${bg_color}${fg_color}[\$(shorten_path)]\$${end_color}"
+                  PROMPT="${bg_color}${fg_color}[\$(shorten_path)]${symbol}${end_color}"
                   ;;
               minimal)
-                  PROMPT="${bg_color}${fg_color}\$${end_color}"
+                  PROMPT="${bg_color}${fg_color}${symbol}${end_color}"
                   ;;
           esac
       }

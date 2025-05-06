@@ -7,7 +7,7 @@ set list
 filetype on
 set mouse=a
 
-set foldmethod=indent
+"set foldmethod=indent
 set nocompatible
 syntax on
 set modelines=0
