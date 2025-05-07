@@ -39,7 +39,7 @@ alt + shift + Escape
 
 #reload bspwm
 super + Escape
-  pkill -f "xss-lock.*slock" && bspc wm -r
+  bspc wm -r
 
 # Toggle focus follows pointer
 super + p
