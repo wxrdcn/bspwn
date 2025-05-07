@@ -33,10 +33,10 @@ case "$chosen" in
 		 shutdown -r now
 		;;
 	$lock)
-		if command -v betterlockscreen &> /dev/null; then
-			betterlockscreen -l
+		if command -v slock &> /dev/null; then
+			slock -l
 		else
-			msg "Lock command 'betterlockscreen' not found. Please install it."
+			msg "Lock command 'slock' not found. Please install it."
 		fi
 		;;
 	$suspend)

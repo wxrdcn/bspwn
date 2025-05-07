@@ -114,7 +114,7 @@ install_packages() {
         kdeconnect vnstat
 
         # Security & Privacy
-        apg pwgen betterlockscreen
+        apg pwgen betterlockscreen slock xss-lock
 
         # Notifications & Appearance
         dmenu dunst libnotify-bin lxappearance pavucontrol pamixer pasystray network-manager network-manager-gnome cbatticon
