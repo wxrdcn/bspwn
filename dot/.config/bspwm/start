@@ -84,6 +84,9 @@ restart_process() {
   $cmd &
 }
 
+# In your autostart script, before restarting processes:
+pkill -f "xss-lock.*slock" || true  # Force-kill existing instances
+pkill -f xfce4-notifyd || true#
 # Define processes (use quotes for commands with arguments)
 process_list=(
   "kdeconnectd"
@@ -98,13 +101,11 @@ process_list=(
   "lxde-settings-daemon"
   "xss-lock --ignore-sleep -- slock"  # Add --ignore-sleep for robustness
 )
-# In your autostart script, before restarting processes:
-pkill -f "xss-lock.*slock" || true  # Force-kill existing instances
-sleep 0.5  # Allow time for termination
 
-# Restart each process
+Restart each process
 for process in "${process_list[@]}"; do
   restart_process $process
 done
+
 
 ############################################################
