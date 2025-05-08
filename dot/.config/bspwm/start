@@ -68,7 +68,7 @@ xset r rate 150 25
 # redshift -O 4500
 
 # Enable DPMS (timeouts in seconds)
-xset dpms 30 600 900  # Standby: 5m, Suspend: 10m, Off: 15m
+xset dpms 180 600 900  # Standby: 3m, Suspend: 10m, Off: 15m
 
 ### Process Management
 
@@ -92,12 +92,12 @@ process_list=(
   "kdeconnectd"
   "kdeconnect-indicator"
   "lxpolkit"
-  "xfce4-clipman"
+#  "xfce4-clipman"
   "nm-applet"
   "dunst"
   "sxhkd"
   "polybar"
-  "picom"
+#  "picom"
   "lxde-settings-daemon"
   "xss-lock --ignore-sleep -- slock"  # Add --ignore-sleep for robustness
 )
@@ -106,6 +106,7 @@ Restart each process
 for process in "${process_list[@]}"; do
   restart_process $process
 done
+
 
 
 ############################################################

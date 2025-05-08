@@ -179,9 +179,11 @@ super + g
 #=====================STATE FLAGS======================
 
 # set the window state
-super + {t,shift + t,s,f}
-	bspc node -t {tiled,pseudo_tiled,floating,fullscreen}
+super + {t,shift + t,f}
+	bspc node -t {tiled,pseudo_tiled,fullscreen}
 
+super + s 
+  "$HOME/.config/sxhkd/scripts/floating.sh"
 
 super + ctrl + {x,y,z}
 	bspc node -g {locked,sticky,private}

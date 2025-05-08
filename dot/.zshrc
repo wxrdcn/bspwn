@@ -450,7 +450,7 @@ alias btop='sudo btop'
 alias htop='sudo htop'
 alias top='sudo top'
 alias show-options="show_options"
-alias rsync="rsync -Phavzc"
+#alias rsync="rsync -rahzc --info=progress2"
 alias rhost='setg rhost'
 alias rport='setg rport'
 alias lhost='setg lhost'
@@ -561,6 +561,10 @@ function w32(){
 function w64(){
     export WINEARCH=win64
     export WINEPREFIX=~/.wine
+}
+
+function rsp(){
+  rsync -rhazc --info=progress2 $@
 }
 
 function mkt() {

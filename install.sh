@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # Global configuration
-CONFIG_DIR="$HOME/bspwn/dot"
+CONFIG_DIR="$HOME/.bspwn/dot"
 BACKUP_DIR="$HOME/.dotfiles_backup_$(date +'%Y%m%d%H%M%S').tar.gz"
 NVIM_VERSION="v0.11.0"
 
-# Ensure project is in $HOME/bspwn
+# Ensure project is in $HOME/.bspwn
 setup_project_dir() {
-    if [[ "$PWD" != "$HOME/bspwn" ]]; then
-        mkdir -p "$HOME/bspwn" || error_exit "Failed to create bspwn directory"
-        mv -- * .[!.]* ..?* "$HOME/bspwn/" 2>/dev/null
-        cd "$HOME/bspwn" || error_exit "Failed to enter bspwn directory"
-        log "Project moved to $HOME/bspwn"
+    if [[ "$PWD" != "$HOME/.bspwn" ]]; then
+        mkdir -p "$HOME/.bspwn" || error_exit "Failed to create .bspwn directory"
+        mv -- * .[!.]* ..?* "$HOME/.bspwn/" 2>/dev/null
+        cd "$HOME/.bspwn" || error_exit "Failed to enter .bspwn directory"
+        log "Project moved to $HOME/.bspwn"
     fi
 }
 
