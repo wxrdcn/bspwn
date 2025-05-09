@@ -6,6 +6,8 @@
 # xrandr -s 1600x900
 
 
+feh --bg-fill $HOME/.config/bspwm/_img/seraph.png
+
 ### Wallpaper
 # Use feh to set image wallpaper, example
 #feh --bg-fill ~/Pictures/wallpapers/bitmap.png
@@ -13,7 +15,7 @@
 # solid color
 #hsetroot -add "#760000" -add "#000000" -gradient 0
 #hsetroot -root -solid "#111111"
-hsetroot -solid "#7f0808" 
+#hsetroot -solid "#7f0808" 
 
 # default dynamic
 
