@@ -94,7 +94,7 @@ process_list=(
   "kdeconnectd"
   "kdeconnect-indicator"
   "lxpolkit"
-#  "xfce4-clipman"
+  "xfce4-clipman"
   "nm-applet"
   "dunst"
   "sxhkd"
